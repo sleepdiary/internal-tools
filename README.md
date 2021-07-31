@@ -18,4 +18,5 @@ The [`run.sh`](run.sh) script in this directory is the equivalent of `bin/entryp
 
 # Using the builder in a new project
 
-Copy [`example-entrypoint.sh`](example-entrypoint.sh) to `bin/entrypoint.sh` in your project, then edit it as appropriate.
+1. copy [`example-entrypoint.sh`](example-entrypoint.sh) to `bin/entrypoint.sh` in your project, then edit it as appropriate
+2. copy [`example-main.yml`](example-main.yml) to `.github/workflows/main.yml` in your project - you shouldn't need to edit it
