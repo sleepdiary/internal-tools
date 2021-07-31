@@ -13,6 +13,8 @@ RUN true \
 && apt-get install -y inotify-tools \
 && apt-get clean \
 && rm -rf /var/lib/apt/lists/* \
+   \
+&& npm cache clean --force \
 && echo Install succeeded
 COPY root /
 RUN chmod 755 /build-sleepdiary.sh /entrypoint.sh /app/bin/entrypoint.sh
