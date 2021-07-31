@@ -77,6 +77,13 @@ then cat <<EOF
 EOF
 fi
 
+if echo "$NPM_PACKAGES" | grep -q '[^ ]'
+then cat <<EOF
+   \\
+&& npm cache clean --force \\
+EOF
+fi
+
 # Footer:
 cat <<EOF
 && echo Install succeeded
