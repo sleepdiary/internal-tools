@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Runner used by GitHub Actions
+# Builds the container used by other projects
 
 cmd_test() {
     true
