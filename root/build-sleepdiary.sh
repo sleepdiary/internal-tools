@@ -17,7 +17,11 @@ fi
 WARNED=
 warning() {
     echo
-    echo ^^^ "$@"
+    echo ^^^ "$1"
+    shift
+    for LINE in "$@"
+    do echo "$LINE"
+    done
     echo
     echo
     WARNED=1
