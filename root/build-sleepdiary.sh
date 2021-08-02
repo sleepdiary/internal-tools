@@ -23,13 +23,35 @@ warning() {
     WARNED=1
 }
 
-check_errors() {
+run_tests() {
+
+    git log --oneline | grep -i 'fixup!\|squash\!' \
+        && warning \
+               "git log found squash/fixup commits" \
+               "Please do: git rebase -i @{u}"
+    git diff --check @{u} \
+        || warning \
+               "git diff --check found conflict markers or whitespace errors" \
+               "Please fix the above issues"
+
+    cmd_build
+    RESULT="$?"
     if [ "$RESULT" != 0 ]
     then
         echo
-        echo "Please fix the above errors"
-        exit "$RESULT"
+        echo "Please fix the above build errors"
+        return "$RESULT"
     fi
+
+    cmd_test
+    RESULT="$?"
+    if [ "$RESULT" != 0 ]
+    then
+        echo
+        echo "Please fix the above test errors"
+        return "$RESULT"
+    fi
+
 }
 
 help_message() {
@@ -84,23 +106,7 @@ case "$1" in
             exit 2
         fi
 
-        git log --oneline | grep -i 'fixup!\|squash\!' \
-            && warning \
-                   "git log found squash/fixup commits" \
-                   "Please do: git rebase -i @{u}"
-        git diff --check @{u} \
-            || warning \
-                   "git diff --check found conflict markers or whitespace errors" \
-                   "Please fix the above issues"
-
-        cmd_build
-        RESULT="$?"
-        check_errors
-
-        cmd_test
-        RESULT="$?"
-        check_errors
-        echo
+        run_tests || exit $?
 
         if [ "$WARNED" != "" ]
         then
