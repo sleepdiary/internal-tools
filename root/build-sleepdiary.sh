@@ -34,12 +34,6 @@ check_errors() {
         echo "Please fix the above errors"
         exit "$RESULT"
     fi
-    if [ "$WARNED" != "" ]
-    then
-        echo
-        echo "Please fix the above errors"
-        exit "$WARNED"
-    fi
 }
 
 help_message() {
@@ -87,6 +81,22 @@ case "$1" in
 
         FORCE=1
 
+        if [ $( git rev-list --count HEAD..@{u}) != 0 ]
+        then
+            echo
+            echo "Please pull or rebase upstream changes"
+            exit 2
+        fi
+
+        git log --oneline | grep -i 'fixup!\|squash\!' \
+            && warning \
+                   "git log found squash/fixup commits" \
+                   "Please do: git rebase -i @{u}"
+        git diff --check @{u} \
+            || warning \
+                   "git diff --check found conflict markers or whitespace errors" \
+                   "Please fix the above issues"
+
         cmd_build
         RESULT="$?"
         check_errors
@@ -96,18 +106,19 @@ case "$1" in
         check_errors
         echo
 
+        if [ "$WARNED" != "" ]
+        then
+            echo
+            echo "Please fix the above warnings,"
+            echo "or just push the changes if you're sure."
+            exit "$WARNED"
+        fi
+
         git diff --exit-code || {
             git status
             echo "Please commit the above changes"
             exit 2
         }
-
-        if [ $( git rev-list --count HEAD..@{u}) != 0 ]
-        then
-            echo
-            echo "Please pull or rebase upstream changes"
-            exit 2
-        fi
 
         # Make sure we're going to push what we expected to:
         git diff @{u}
