@@ -1,17 +1,13 @@
 # Utilities used by build scripts
 
 if type cmd_run >/dev/null 2>&1
-then
-    HAS_RUN=1
-else
-    HAS_RUN=
+then HAS_RUN=1
+else HAS_RUN=
 fi
 
 if type cmd_upgrade >/dev/null 2>&1
-then
-    HAS_UPGRADE=1
-else
-    HAS_UPGRADE=
+then HAS_UPGRADE=1
+else HAS_UPGRADE=
 fi
 
 WARNED=
