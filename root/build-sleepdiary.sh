@@ -133,6 +133,36 @@ case "$1" in
 
         ;;
 
+    automated-test)
+        # called from e.g. GitHub Actions
+
+        run_tests > test-output.txt 2>&1
+        RESULT="$?"
+
+        if [ "$RESULT" = 0 ]
+        then
+            if [ "$WARNED" = "" ]
+            then HEADER="All the tests pass :)"
+            else HEADER="The tests passed, but there were some warnings.\nIf you're sure this is correct, you will need to merge \`built\` manually"
+            fi
+        else HEADER="Please fix the tests below"
+        fi
+
+        # Based on https://github.community/t/set-output-truncates-multiline-strings/16852
+        echo -n "::set-output name=comment::"
+        echo "$HEADER
+<details>
+  <summary>Click to see the test output</summary>
+$( sed -e 's/^/  /' test-output.txt )
+</details>
+" | sed \
+        -e ':a;N;$!ba' \
+        -e 's/%/%25/g' \
+        -e 's/\r/%0D/g' -e 's/\n/%0A/g' \
+        -e 's/ /%20/g' -e 's/\t/%09/g'
+
+        ;;
+
     build)
         cmd_build
         exit "$?"
