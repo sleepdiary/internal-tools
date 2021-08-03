@@ -153,7 +153,7 @@ case "$1" in
         echo "$HEADER
 <details>
   <summary>Click to see the test output</summary>
-$( sed -e 's/^/  /' test-output.txt )
+$( sed -e 's/^/      /' test-output.txt )
 </details>
 " | sed \
         -e ':a;N;$!ba' \
