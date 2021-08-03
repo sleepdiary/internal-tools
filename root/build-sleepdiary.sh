@@ -142,10 +142,10 @@ case "$1" in
         if [ "$RESULT" = 0 ]
         then
             if [ "$WARNED" = "" ]
-            then HEADER="All the tests pass :)"
-            else HEADER="The tests passed, but there were some warnings.\nIf you're sure this is correct, you will need to merge \`built\` manually"
+            then HEADER="😀 All the tests pass"
+            else HEADER="😐 The tests passed, but there were some warnings.\nIf you're sure this is correct, you will need to merge \`built\` manually"
             fi
-        else HEADER="Please fix the tests below"
+        else HEADER="😧 Please fix the tests below"
         fi
 
         # Based on https://github.community/t/set-output-truncates-multiline-strings/16852
