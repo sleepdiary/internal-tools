@@ -159,7 +159,6 @@ $( sed -e 's/^/  /' test-output.txt )
         -e ':a;N;$!ba' \
         -e 's/%/%25/g' \
         -e 's/\r/%0D/g' -e 's/\n/%0A/g' \
-        -e 's/ /%20/g' -e 's/\t/%09/g'
 
         ;;
 
