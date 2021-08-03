@@ -1,41 +1,57 @@
 # Utilities used by build scripts
 
 if type cmd_run >/dev/null 2>&1
-then
-    HAS_RUN=1
-else
-    HAS_RUN=
+then HAS_RUN=1
+else HAS_RUN=
 fi
 
 if type cmd_upgrade >/dev/null 2>&1
-then
-    HAS_UPGRADE=1
-else
-    HAS_UPGRADE=
+then HAS_UPGRADE=1
+else HAS_UPGRADE=
 fi
 
 WARNED=
 warning() {
     echo
-    echo ^^^ "$@"
+    echo ^^^ "$1"
+    shift
+    for LINE in "$@"
+    do echo "$LINE"
+    done
     echo
     echo
     WARNED=1
 }
 
-check_errors() {
+run_tests() {
+
+    git log --oneline | grep -i 'fixup!\|squash\!' \
+        && warning \
+               "git log found squash/fixup commits" \
+               "Please do: git rebase -i @{u}"
+    git diff --check @{u} \
+        || warning \
+               "git diff --check found conflict markers or whitespace errors" \
+               "Please fix the above issues"
+
+    cmd_build
+    RESULT="$?"
     if [ "$RESULT" != 0 ]
     then
         echo
-        echo "Please fix the above errors"
-        exit "$RESULT"
+        echo "Please fix the above build errors"
+        return "$RESULT"
     fi
-    if [ "$WARNED" != "" ]
+
+    cmd_test
+    RESULT="$?"
+    if [ "$RESULT" != 0 ]
     then
         echo
-        echo "Please fix the above errors"
-        exit "$WARNED"
+        echo "Please fix the above test errors"
+        return "$RESULT"
     fi
+
 }
 
 help_message() {
@@ -83,27 +99,28 @@ case "$1" in
 
         FORCE=1
 
-        cmd_build
-        RESULT="$?"
-        check_errors
-
-        cmd_test
-        RESULT="$?"
-        check_errors
-        echo
-
-        git diff --exit-code || {
-            git status
-            echo "Please commit the above changes"
-            exit 2
-        }
-
         if [ $( git rev-list --count HEAD..@{u}) != 0 ]
         then
             echo
             echo "Please pull or rebase upstream changes"
             exit 2
         fi
+
+        run_tests || exit $?
+
+        if [ "$WARNED" != "" ]
+        then
+            echo
+            echo "Please fix the above warnings,"
+            echo "or just push the changes if you're sure."
+            exit "$WARNED"
+        fi
+
+        git diff --exit-code || {
+            git status
+            echo "Please commit the above changes"
+            exit 2
+        }
 
         # Make sure we're going to push what we expected to:
         git diff @{u}
@@ -113,6 +130,36 @@ case "$1" in
         echo
         echo "Please review the above changes, then do: git push"
         exit 0
+
+        ;;
+
+    automated-test)
+        # called from e.g. GitHub Actions
+
+        run_tests > test-output.txt 2>&1
+        RESULT="$?"
+
+        if [ "$RESULT" = 0 ]
+        then
+            if [ "$WARNED" = "" ]
+            then HEADER="All the tests pass :)"
+            else HEADER="The tests passed, but there were some warnings.\nIf you're sure this is correct, you will need to merge \`built\` manually"
+            fi
+        else HEADER="Please fix the tests below"
+        fi
+
+        # Based on https://github.community/t/set-output-truncates-multiline-strings/16852
+        echo -n "::set-output name=comment::"
+        echo "$HEADER
+<details>
+  <summary>Click to see the test output</summary>
+$( sed -e 's/^/  /' test-output.txt )
+</details>
+" | sed \
+        -e ':a;N;$!ba' \
+        -e 's/%/%25/g' \
+        -e 's/\r/%0D/g' -e 's/\n/%0A/g' \
+        -e 's/ /%20/g' -e 's/\t/%09/g'
 
         ;;
 
