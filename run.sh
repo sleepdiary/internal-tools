@@ -71,6 +71,7 @@ case "$1" in
 
         for DIR in $SUBDIRECTORIES
         do
+            echo "Building $DIR"
             cd "$DIR"
             "./run.sh" build || exit 2
             "./run.sh" test  || exit 2
