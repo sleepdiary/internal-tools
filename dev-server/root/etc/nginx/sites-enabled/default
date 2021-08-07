@@ -1,0 +1,58 @@
+# Default server configuration
+#
+server {
+    listen 8080 default_server;
+    listen [::]:8080 default_server;
+
+    # Add index.php to the list if you are using PHP
+    index index.html index.htm index.nginx-debian.html;
+
+    server_name _;
+
+    location / {
+        # First attempt to serve request as file, then
+        # as directory, then fall back to displaying a 404.
+        root /app;
+        try_files $uri $uri/index.html /sleepdiary.github.io$uri /sleepdiary.github.io$uri/index.html @markdown_server;
+    }
+
+    location /dashboard/ {
+        proxy_pass http://127.0.0.1:8081/;
+    }
+
+    location @markdown_server {
+      proxy_pass http://127.0.0.1:8082;
+    }
+
+    location /info/ {
+        alias /app/info/docs/;
+    }
+
+    location /dev-server/ {
+        # Use the version in the repo if the user has cloned it
+        root /app/internal-tools/dev-server/root/opt/sleepdiary;
+        try_files $uri $uri/index.html @default_dev_server;
+    }
+
+    location @default_dev_server {
+        # Alternative directory for users that haven't installed the internal-tools repo
+        root /opt/sleepdiary;
+    }
+
+    location /dev-server/tmux/ {
+        proxy_pass http://unix:/opt/sleepdiary/web-ttys/tmux.sock:/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "Upgrade";
+        proxy_set_header Host $host;
+    }
+
+    location /dev-server/run/ {
+        proxy_pass http://unix:/opt/sleepdiary/web-ttys/rebuild-and-test.sock:/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "Upgrade";
+        proxy_set_header Host $host;
+    }
+
+}
