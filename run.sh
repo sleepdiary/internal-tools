@@ -2,7 +2,7 @@
 #
 # Builds the container used by other projects
 
-SUBDIRECTORIES="builder"
+SUBDIRECTORIES="builder dev-server"
 
 case "$1" in
 
