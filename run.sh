@@ -2,22 +2,39 @@
 #
 # Builds the container used by other projects
 
-SUBDIRECTORIES=builder
+SUBDIRECTORIES="builder"
 
-cmd_test() {
-    for DIR in $SUBDIRECTORIES
-    do "$DIR/run.sh" cmd_test || exit 2
-    done
-}
-cmd_build() {
-    for DIR in $SUBDIRECTORIES
-    do "$DIR/run.sh" cmd_build || exit 2
-    done
-}
-cmd_upgrade() {
-    for DIR in $SUBDIRECTORIES
-    do "$DIR/run.sh" cmd_upgrade || exit 2
-    done
-}
+case "$1" in
 
-. root/build-sleepdiary.sh
+    test)
+        for DIR in $SUBDIRECTORIES
+        do
+            cd "$DIR"
+            "./run.sh" test || exit 2
+            cd - > /dev/null
+        done
+        ;;
+
+    build)
+        for DIR in $SUBDIRECTORIES
+        do
+            cd "$DIR"
+            "./run.sh" build || exit 2
+            cd - > /dev/null
+        done
+        ;;
+
+    upgrade)
+        for DIR in $SUBDIRECTORIES
+        do
+            cd "$DIR"
+            "./run.sh" upgrade || exit 2
+            cd - > /dev/null
+        done
+        ;;
+
+    *)
+        exit 2
+        ;;
+
+esac
