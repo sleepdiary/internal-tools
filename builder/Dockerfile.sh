@@ -24,6 +24,7 @@ APT_PACKAGES="$APT_PACKAGES"
 cat <<EOF
 FROM node:$NODE_VERSION
 RUN true \\
+&& mkdir -p /opt/sleepdiary \\
 EOF
 
 # JSDoc timestamps all documents.  To generate a repeatable build, we need a fake timestamp.
@@ -45,6 +46,6 @@ footer
 
 cat <<EOF
 COPY root /
-RUN chmod 755 /build-sleepdiary.sh /entrypoint.sh /app/bin/entrypoint.sh
+RUN chmod 755 /opt/sleepdiary/*.sh /app/bin/run.sh
 WORKDIR /app
 EOF
