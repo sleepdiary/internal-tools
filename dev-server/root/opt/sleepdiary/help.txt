@@ -1,0 +1,11 @@
+[1;33mSleepdiary Server Tips[0m
+
+[33mSelect a pane:[0m ctrl+b q <number shown on screen>
+                (or click it with the mouse)
+
+[33mClose the program running in a pane:[0m ctrl+c
+
+[33mRespawn a pane:[0m ctrl+b r
+
+[33mDetach from session:[0m ctrl+b d
+

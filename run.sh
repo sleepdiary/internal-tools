@@ -2,18 +2,39 @@
 #
 # Builds the container used by other projects
 
-cmd_test() {
-    true
-}
-cmd_build() {
-    ./Dockerfile.sh > Dockerfile
-    # to create an image locally: docker build --tag sleepdiaryproject/builder .
-}
-cmd_upgrade() {
-    curl --silent https://nodejs.org/dist/index.json \
-         | sed -ne '/"version"/ { s/{"version":"v\([0-9]*\).*/\1/p ; q }' \
-         > node-version.txt \
-         || exit 2
-}
+SUBDIRECTORIES="builder"
 
-. root/build-sleepdiary.sh
+case "$1" in
+
+    test)
+        for DIR in $SUBDIRECTORIES
+        do
+            cd "$DIR"
+            "./run.sh" test || exit 2
+            cd - > /dev/null
+        done
+        ;;
+
+    build)
+        for DIR in $SUBDIRECTORIES
+        do
+            cd "$DIR"
+            "./run.sh" build || exit 2
+            cd - > /dev/null
+        done
+        ;;
+
+    upgrade)
+        for DIR in $SUBDIRECTORIES
+        do
+            cd "$DIR"
+            "./run.sh" upgrade || exit 2
+            cd - > /dev/null
+        done
+        ;;
+
+    *)
+        exit 2
+        ;;
+
+esac
