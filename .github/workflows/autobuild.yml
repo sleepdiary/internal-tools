@@ -36,18 +36,34 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
+      - name: Extract metadata (tags, labels) for "builder"
+        id: builder_meta
         uses: docker/metadata-action@8b842e721d38d18bea23b57f4c040e53331f4ca2
         with:
           images: |
-            sleepdiaryproject/builder
-            ghcr.io/${{ github.repository }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/builder
+            ghcr.io/${{ github.repository_owner }}/builder
 
-      - name: Build and push Docker images
+      - name: Extract metadata (tags, labels) for "dev_server"
+        id: dev_server_meta
+        uses: docker/metadata-action@8b842e721d38d18bea23b57f4c040e53331f4ca2
+        with:
+          images: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/dev_server
+            ghcr.io/${{ github.repository_owner }}/dev_server
+
+      - name: Build and push images for "builder"
         uses: docker/build-push-action@1bc1040caef9e604eb543693ba89b5bf4fc80935
         with:
-          context: .
+          context: builder
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/builder:latest,${{ secrets.DOCKERHUB_USERNAME }}/builder:latest
-          labels: ${{ steps.meta.outputs.labels }}
+          labels: ${{ steps.builder_meta.outputs.labels }}
+
+      - name: Build and push images for "dev-server"
+        uses: docker/build-push-action@1bc1040caef9e604eb543693ba89b5bf4fc80935
+        with:
+          context: dev-server
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/dev-server:latest
+          labels: ${{ steps.dev_server_meta.outputs.labels }}
