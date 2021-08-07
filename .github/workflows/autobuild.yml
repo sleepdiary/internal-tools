@@ -1,6 +1,6 @@
 # Based on https://docs.github.com/en/actions/guides/publishing-docker-images
 
-name: Publish Docker image
+name: Publish Docker images
 
 # Build once a month - the following values are random and can be reassigned with:
 # echo "$(( RANDOM * 60 / 32767 )) $(( RANDOM * 24 / 32767 )) $(( RANDOM * 28 / 32767 )) * *"
@@ -52,7 +52,7 @@ jobs:
             ${{ secrets.DOCKERHUB_USERNAME }}/dev_server
             ghcr.io/${{ github.repository_owner }}/dev_server
 
-      - name: Build and push images for "builder"
+      - name: Build and push image for "builder"
         uses: docker/build-push-action@1bc1040caef9e604eb543693ba89b5bf4fc80935
         with:
           context: builder
@@ -60,7 +60,7 @@ jobs:
           tags: ghcr.io/${{ github.repository_owner }}/builder:latest,${{ secrets.DOCKERHUB_USERNAME }}/builder:latest
           labels: ${{ steps.builder_meta.outputs.labels }}
 
-      - name: Build and push images for "dev-server"
+      - name: Build and push image for "dev-server"
         uses: docker/build-push-action@1bc1040caef9e604eb543693ba89b5bf4fc80935
         with:
           context: dev-server

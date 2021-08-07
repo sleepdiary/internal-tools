@@ -1,4 +1,4 @@
-# Sleep Diary Report
+# Sleep Diary Internal Tools
 
 As part of the [Sleep Diary Project](https://sleepdiary.github.io/), this manages the build environment used by other repositories.
 
