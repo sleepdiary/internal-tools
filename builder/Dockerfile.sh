@@ -20,10 +20,6 @@ APT_PACKAGES="$APT_PACKAGES inotify-tools"
 NPM_PACKAGES="$NPM_PACKAGES jasmine"
 APT_PACKAGES="$APT_PACKAGES"
 
-# Running tests in Chrome would significantly increase size, without adding much value:
-#NPM_PACKAGES="$NPM_PACKAGES puppeteer"
-#APT_PACKAGES="$APT_PACKAGES chromium"
-
 # Header:
 cat <<EOF
 FROM node:$NODE_VERSION
@@ -43,25 +39,7 @@ EOF
 fi
 
 install_npm_packages $NPM_PACKAGES
-
-# Configure puppetteer:
-if echo "$NPM_PACKAGES" | grep -q puppeteer
-then cat <<EOF
-   \\
-&& cd /usr/local/lib/node_modules/puppeteer && PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true node install.js \\
-EOF
-fi
-
 install_apt_packages $APT_PACKAGES
-
-if echo "$APT_PACKAGES" | grep -q 'chromium'
-then cat <<EOF
-   \\
-&& { echo '#!/bin/sh' ; echo '/usr/bin/chromium --no-sandbox "\$@"' ; } > /usr/bin/chromium-no-sandbox \\
-&& chmod 755 /usr/bin/chromium-no-sandbox \\
-EOF
-fi
-
 footer
 
 cat <<EOF
