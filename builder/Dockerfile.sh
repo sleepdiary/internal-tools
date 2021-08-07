@@ -26,10 +26,11 @@ FROM node:$NODE_VERSION
 RUN true \\
 EOF
 
-# JSDoc timestamps all documents.  To generate a repeatable build, we need a fake timestamp:
+# JSDoc timestamps all documents.  To generate a repeatable build, we need a fake timestamp.
+# We use libfaketime, which I've only been able to make work when it's installed in /tmp:
 if echo "$NPM_PACKAGES" | grep -q jsdoc
 then cat <<EOF
-   \\
+ \\
 && git clone --depth 1 https://github.com/wolfcw/libfaketime.git /tmp/libfaketime \\
 && sed -i -e 's/\/usr\/local/\/tmp\/libfaketime/' /tmp/libfaketime/Makefile /tmp/libfaketime/*/Makefile \\
 && make -j -C /tmp/libfaketime/src \\
