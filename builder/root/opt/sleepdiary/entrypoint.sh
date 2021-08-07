@@ -1,40 +1,23 @@
-# Utilities used by build scripts
+#!/bin/sh
 
-if type cmd_run >/dev/null 2>&1
-then HAS_RUN=1
-else HAS_RUN=
+if ! [ -x "$PWD/bin/run.sh" ]
+then
+    echo "Contents of $PWD:"
+    ls -lha
+    echo "Contents of $PWD/bin:"
+    ls -lha bin
+    echo "Please create a $PWD/bin/run.sh" >&2
+    exit 2
 fi
 
-if type cmd_upgrade >/dev/null 2>&1
-then HAS_UPGRADE=1
-else HAS_UPGRADE=
+if [ -e /opt/sleepdiary/utils.sh ]
+then . /opt/sleepdiary/utils.sh
+else printf "\033[1;31m/opt/sleepdiary/utils.sh not found - some checks bypassed.\033[0m\n"
 fi
-
-WARNED=
-warning() {
-    echo
-    echo ^^^ "$1"
-    shift
-    for LINE in "$@"
-    do echo "$LINE"
-    done
-    echo
-    echo
-    WARNED=1
-}
 
 run_tests() {
 
-    git log --oneline | grep -i 'fixup!\|squash\!' \
-        && warning \
-               "git log found squash/fixup commits" \
-               "Please do: git rebase -i @{u}"
-    git diff --check @{u} \
-        || warning \
-               "git diff --check found conflict markers or whitespace errors" \
-               "Please fix the above issues"
-
-    cmd_build
+    /app/bin/run.sh build
     RESULT="$?"
     if [ "$RESULT" != 0 ]
     then
@@ -43,7 +26,7 @@ run_tests() {
         return "$RESULT"
     fi
 
-    cmd_test
+    /app/bin/run.sh test
     RESULT="$?"
     if [ "$RESULT" != 0 ]
     then
@@ -55,25 +38,17 @@ run_tests() {
 }
 
 help_message() {
-    USAGE="test | build | merge-and-push"
-    [ -n "$HAS_RUN"     ] && USAGE="$USAGE | run"
-    [ -n "$HAS_UPGRADE" ] && USAGE="$USAGE | upgrade"
-    USAGE_PORT=""     ; [ -n "NEEDS_PORT" ] && PORT_USAGE=" -p some_port:8080"
     cat <<EOF
-Sleepdiary $SLEEPDIARY_NAME builder
+Sleepdiary repository builder
 
 Usage:
-       docker run --rm -it -v /path/to/sleepdiary/$SLEEPDIARY_NAME:/app$PORT_USAGE sleepdiary/builder [ $USAGE ] [ --force ]
+       docker run --rm -it -v /path/to/sleepdiary/$SLEEPDIARY_NAME:/app sleepdiary/builder [ test | build | merge-and-push ] [ --force ]
 
 Options:
   --force        run the command even if everything is already up-to-date
   test           (default) build and run tests
   build          build without running tests
   merge-and-push build, run tests, and push to the upstream repository
-EOF
-    [ -n "$HAS_RUN"     ] && echo "  run            run a development environment"
-    [ -n "$HAS_UPGRADE" ] && echo "  upgrade        upgrade all dependencies"
-    cat <<EOF
 
 License: https://github.com/sleepdiary/$SLEEPDIARY_NAME/blob/main/LICENSE
 EOF
@@ -106,29 +81,15 @@ case "$1" in
             exit 2
         fi
 
-        run_tests || exit $?
-
-        if [ "$WARNED" != "" ]
+        run_tests
+        RESULT="$?"
+        if [ "$RESULT" -ne 0 ]
         then
-            echo
-            echo "Please fix the above warnings,"
-            echo "or just push the changes if you're sure."
-            exit "$WARNED"
+                echo
+                echo "Please fix the above issues,"
+                echo "or just push the changes if you're sure."
+                exit "$RESULT"
         fi
-
-        git diff --exit-code || {
-            git status
-            echo "Please commit the above changes"
-            exit 2
-        }
-
-        # Make sure we're going to push what we expected to:
-        git diff @{u}
-        echo
-        git log --oneline --graph @{u}...HEAD
-
-        echo
-        echo "Please review the above changes, then do: git push"
         exit 0
 
         ;;
@@ -141,7 +102,7 @@ case "$1" in
 
         if [ "$RESULT" = 0 ]
         then
-            if [ "$WARNED" = "" ]
+            if [ "$WARNED" = 0 ]
             then HEADER="👍 All tests pass"
             else HEADER="😐 The tests passed, but there were some warnings.
 If you're sure this is correct, please merge \`built\` manually"
@@ -165,8 +126,7 @@ $( sed -e 's/^/      /' test-output.txt )
         ;;
 
     build)
-        cmd_build
-        exit "$?"
+        exec /app/bin/run.sh build
     ;;
 
     merge-and-push)
@@ -205,8 +165,8 @@ $( sed -e 's/^/      /' test-output.txt )
         # Run the build itself
         #
 
-        cmd_build
-        cmd_test
+        /app/bin/run.sh build
+        /app/bin/run.sh test
 
         #
         # Add/commit/push changes
@@ -219,28 +179,6 @@ $( sed -e 's/^/      /' test-output.txt )
         fi
         git push
 
-        ;;
-
-    run)
-        if [ -z "$HAS_RUN" ]
-        then
-            help_message
-            exit 2
-        else
-            cmd_run
-            exit "$?"
-        fi
-        ;;
-
-    upgrade)
-        if [ -z "$HAS_UPGRADE" ]
-        then
-            help_message
-            exit 2
-        else
-            cmd_upgrade
-            exit "$?"
-        fi
         ;;
 
     h|help|-h|--h|--he|--hel|--help)

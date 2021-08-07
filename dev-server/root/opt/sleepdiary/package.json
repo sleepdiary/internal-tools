@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "escape-html": "^1.0.3",
+    "github-markdown-css": "^4.0.0",
+    "remark": "^14.0.1",
+    "remark-gfm": "^1.0.0",
+    "remark-github": "^10.1.0",
+    "remark-html": "^14.0.0",
+    "remark-preset-lint-markdown-style-guide": "^4.0.0",
+    "vfile-reporter": "^7.0.1"
+  }
+}

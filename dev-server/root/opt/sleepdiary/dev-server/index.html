@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+  </head>
+  <body>
+    <div id="app">
+      <v-app>
+        <v-main>
+          <v-container
+            v-if="section==0"
+            style="margin-bottom:56px"
+            >
+            <h1>Welcome to the Sleepdiary project!</h1>
+
+            <p>You are now running a development version of the project on your local machine.  You can use it to try out new ideas before making them public.</p>
+
+            <p>Here are some links to get started.  They may or may not work, depending on which repositories you have installed:</p>
+
+            <ul>
+              <li><a href="/dashboard">Open the dashboard</a></li>
+              <li><a href="/info/simulations.html">View the simulations</a></li>
+              <li><a href="/core">See the documentation for the core repo</a></li>
+            </ul>
+
+            <p>These should be updated automatically whenever you edit a file.  But depending on the file, you might need to wait a few seconds and/or refresh the page.</p>
+
+            <h1>Managing the server</h1>
+
+            <h2>From a browser</h2>
+
+            <p>The easiest way to manage the server is with the buttons at the bottom of this page.</p>
+
+            <p>To see the server console, click on the <em>Console</em> link at the bottom of this page.  This tells you what all the programs running on the server are currently doing.  When you edit a file or visit a page, you should see the relevant section update itself.  Because the console is visible to anyone on your network, you can't actually type anything in here.</p>
+
+            <p>To build and test all of your repositories, click the <em>Run</em> link at the bottom then click <em>Rebuild and test everything</em>.</p>
+
+            <h2>From a command line</h2>
+
+            <p>If you prefer, you can use the server from a command line.</p>
+
+            <p>To see the server console, do <tt>docker exec -it sleepdiary_dev_server tmux attach -tconsole</tt><br/>Typing is enabled here because this only works from the computer running the server.  The console uses <a href="https://github.com/tmux/tmux/wiki">tmux</a>, so press <tt>ctrl-b d</tt> to "detach" (exit) the console.</p>
+
+            <p>To build and test all of your repositories, do <tt>docker exec -it sleepdiary_dev_server /opt/sleepdiary/rebuild-and-test.sh</tt></p>
+
+            <p>To open a new shell, do <tt>docker exec -it sleepdiary_dev_server /bin/bash -l</tt><br/>The <tt>-l</tt> option creates a <tt>login</tt> shell, which gives you a nicer command prompt.</p>
+
+            <h1>Updating the server</h1>
+
+            <p>The server is updated at least once a month with the latest versions of packages.  You don't have to update that often, but new versions of the project may require features that aren't present in older versions of the server.  To update the server, run these commands in a terminal:</p>
+
+            <pre>
+# download the latest version:
+docker pull sleepdiaryproject/dev_server
+
+# stop and delete the old server:
+docker stop sleepdiary_dev_server
+docker container rm sleepdiary_dev_server
+
+# start the new version (remember to set the right path):
+docker run \
+    -d -p 8080-8090:8080-8090 \
+    -v <em style="color:grey">/path/to/sleepdiary</em>:/app \
+    --name sleepdiary_dev_server \
+    sleepdiaryproject/dev_server
+            </pre>
+
+            <h1>Editing this file</h1>
+
+            <p>This file is <tt>/dev-server/root/opt/sleepdiary/dev-server/index.html</tt> in the <tt>internal-tools</tt> repository.  It's intended to help new developers, so it's an excellent place to get started if you have an idea for what it should look like!</p>
+
+          </v-container>
+
+          <iframe
+            v-if="section==1"
+            frameborder="0"
+            style="width:100vw;height:calc( 100vh - 56px )"
+            src="http://localhost:8080/dev-server/tmux/"
+            title="Server console" width="400" height="300">
+          </iframe>
+
+          <v-container
+            v-if="section==2"
+            >
+
+            <v-btn style="width:100%" @click="rebuild_and_test">
+              <v-icon>mdi-wrench</v-icon>
+              <span>Rebuild and test everything</span>
+            </v-btn>
+
+            <div v-html="rebuild"></div>
+
+          </v-container>
+
+          <v-bottom-navigation
+            v-model="section"
+            color="primary"
+            grow
+            fixed
+            >
+            <v-btn>
+              <span>Home</span>
+              <v-icon>mdi-home</v-icon>
+            </v-btn>
+            <v-btn>
+              <span>Console</span>
+              <v-icon>mdi-developer-board</v-icon>
+            </v-btn>
+            <v-btn>
+              <span>Run</span>
+              <v-icon>mdi-play</v-icon>
+            </v-btn>
+          </v-bottom-navigation>
+
+        </v-main>
+      </v-app>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+    <script>
+      new Vue({
+          el: '#app',
+          vuetify: new Vuetify(),
+          data: () => ({
+              section: '0',
+              rebuild: '',
+          }),
+          methods: {
+              rebuild_and_test() {
+                  this.rebuild = '';
+                  this.$nextTick(() => this.rebuild = '<iframe frameborder="0" src="/dev-server/run"style="width:100%;height:calc( 100vh - 105px )"></iframe>' );
+              },
+          },
+          watch: {
+              section() {
+                  this.rebuild = '';
+              },
+          },
+      })
+    </script>
+  </body>
+</html>
