@@ -97,7 +97,7 @@ case "$1" in
     automated-test)
         # called from e.g. GitHub Actions
 
-        run_tests > test-output.txt 2>&1
+        run_tests 2>&1 | tee test-output.txt
         RESULT="$?"
 
         if [ "$RESULT" = 0 ]
