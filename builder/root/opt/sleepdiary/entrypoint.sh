@@ -165,8 +165,22 @@ $( sed -e 's/^/      /' test-output.txt )
         # Run the build itself
         #
 
+        set +e
         ./bin/run.sh build
+        RESULT="$?"
+        if [ "$RESULT" != 0 -a "$RESULT" != 1 ]
+        then
+            echo "Build failed"
+            exit "$RESULT"
+        fi
         ./bin/run.sh test
+        RESULT="$?"
+        if [ "$RESULT" != 0 -a "$RESULT" != 1 ]
+        then
+            echo "Build failed"
+            exit "$RESULT"
+        fi
+        set -e
 
         #
         # Add/commit/push changes
