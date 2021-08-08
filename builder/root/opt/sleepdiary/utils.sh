@@ -41,7 +41,7 @@ generic_tests() {
     }
 
     # Make sure we're going to push what we expected to:
-    git diff @{u}
+    git diff --stat @{u}
     echo
     git log --oneline --graph @{u}...HEAD
     echo
