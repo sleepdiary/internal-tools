@@ -17,7 +17,7 @@ fi
 
 run_tests() {
 
-    /app/bin/run.sh build
+    ./bin/run.sh build
     RESULT="$?"
     if [ "$RESULT" != 0 ]
     then
@@ -26,7 +26,7 @@ run_tests() {
         return "$RESULT"
     fi
 
-    /app/bin/run.sh test
+    ./bin/run.sh test
     RESULT="$?"
     if [ "$RESULT" != 0 ]
     then
@@ -126,7 +126,7 @@ $( sed -e 's/^/      /' test-output.txt )
         ;;
 
     build)
-        exec /app/bin/run.sh build
+        exec ./bin/run.sh build
     ;;
 
     merge-and-push)
@@ -165,8 +165,8 @@ $( sed -e 's/^/      /' test-output.txt )
         # Run the build itself
         #
 
-        /app/bin/run.sh build
-        /app/bin/run.sh test
+        ./bin/run.sh build
+        ./bin/run.sh test
 
         #
         # Add/commit/push changes
