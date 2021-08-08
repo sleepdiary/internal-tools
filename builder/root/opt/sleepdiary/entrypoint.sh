@@ -123,6 +123,8 @@ $( sed -e 's/^/      /' test-output.txt )
         -e 's/%/%25/g' \
         -e 's/\r/%0D/g' -e 's/\n/%0A/g' \
 
+        rm -f test-output.txt
+
         ;;
 
     build)
