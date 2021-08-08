@@ -97,7 +97,7 @@ case "$1" in
     automated-test)
         # called from e.g. GitHub Actions
 
-        run_tests > test-output.txt 2>&1
+        run_tests 2>&1 | tee test-output.txt
         RESULT="$?"
 
         if [ "$RESULT" = 0 ]
@@ -122,6 +122,8 @@ $( sed -e 's/^/      /' test-output.txt )
         -e ':a;N;$!ba' \
         -e 's/%/%25/g' \
         -e 's/\r/%0D/g' -e 's/\n/%0A/g' \
+
+        rm -f test-output.txt
 
         ;;
 
