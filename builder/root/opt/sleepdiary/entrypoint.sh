@@ -173,6 +173,10 @@ $( sed -e 's/^/      /' test-output.txt )
             echo "Build failed"
             exit "$RESULT"
         fi
+
+        # Add things now, so the test doesn't complain about unstaged changes:
+        git add .
+
         ./bin/run.sh test
         RESULT="$?"
         if [ "$RESULT" != 0 -a "$RESULT" != 1 ]
@@ -186,7 +190,6 @@ $( sed -e 's/^/      /' test-output.txt )
         # Add/commit/push changes
         #
 
-        git add .
         if git diff --quiet HEAD
         then echo "No changes to commit"
         else git commit -a -m "Build updates from main branch"
