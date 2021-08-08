@@ -43,9 +43,14 @@ generic_tests() {
     # Make sure we're going to push what we expected to:
     git diff --stat @{u}
     echo
-    git log --oneline --graph @{u}...HEAD
-    echo
-    echo "The changes above will be pushed by \`git push\`"
+    if [ "$( git rev-list --count @{u}...HEAD )" = 0 ]
+    then
+        echo "Everything up-to-date - \`git push\` will do nothing"
+    else
+        git log --oneline --graph @{u}...HEAD
+        echo
+        echo "The changes above will be pushed by \`git push\`"
+    fi
 
     return $WARNED
 
