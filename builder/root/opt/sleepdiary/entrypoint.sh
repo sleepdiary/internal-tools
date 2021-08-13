@@ -56,6 +56,56 @@ run_tests() {
         return "$RESULT"
     fi
 
+    RESULT="0"
+
+    if ! git diff --quiet
+    then
+
+        echo "Please stash your changes to run the merge tests"
+        exit 1
+
+    elif [ "$(cat .git/HEAD )" = "ref: refs/heads/main" ]
+    then
+
+        echo
+        git checkout --quiet built
+        run_merge --no-commit main
+        RESULT="$?"
+        [ "$RESULT" != 0 ] && git diff
+        [ -e .git/MERGE_HEAD ] && git merge --abort
+        git checkout --quiet main
+
+    elif [ "$(cat .git/HEAD )" = "ref: refs/heads/built" ]
+    then
+
+        echo
+        run_merge --no-commit main
+        RESULT="$?"
+        [ "$RESULT" != 0 ] && git diff
+        [ -e .git/MERGE_HEAD ] && git merge --abort
+
+    else
+
+        echo "Please do \`git checkout main\` or \`git checkout built\` to run the merge tests"
+        exit 1
+
+    fi
+
+    if [ "$RESULT" -ne 0 ]
+    then
+        cat <<EOF
+
+These changes cannot be merged into the "built" branch.
+Please try one of the following:
+
+a) Edit your commits to avoid the merge conflict(s) above
+b) push the commit anyway and tell the maintainers how to resolve the conflict manually
+c) see https://github.com/sleepdiary/docs/development/minimising-planned-maintenance
+
+EOF
+        exit 2
+    fi
+
 }
 
 help_message() {
