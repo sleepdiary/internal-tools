@@ -1,3 +1,5 @@
+# If you edit this file, make sure to make a matching edit in autobuild.yml
+
 # Based on https://docs.github.com/en/actions/guides/publishing-docker-images
 
 name: Publish Docker images
