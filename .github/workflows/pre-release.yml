@@ -24,7 +24,11 @@ jobs:
           ref: pre-release
 
       - name: Update Dockerfile
-        run: cd builder && ./run.sh build && git commit -a -m 'Update Dockerfile'
+        run: |
+          cd builder || exit 2
+          ./run.sh build || exit 2
+          git add -f Dockerfile || exit 2
+          git diff --quiet || git commit Dockerfile -m 'Update Dockerfile'
         env:
           GIT_AUTHOR_NAME: "Automatic updater [bot]"
           GIT_AUTHOR_EMAIL: "sleepdiary-bot@pileofstuff.org"
