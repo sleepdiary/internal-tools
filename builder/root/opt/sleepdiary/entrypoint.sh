@@ -31,7 +31,7 @@ fi
 
 run_merge() {
     MERGE_OPTIONS=
-    MERGE_OPTIONS="$MERGE_OPTIONS --strategy-option=theirs"
+    #MERGE_OPTIONS="$MERGE_OPTIONS --strategy-option=theirs" # NO!  These conflicts sometimes need manual intervention
     MERGE_OPTIONS="$MERGE_OPTIONS --no-edit"
     git merge $MERGE_OPTIONS "$@"
 }
