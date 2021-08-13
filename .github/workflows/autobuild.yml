@@ -24,13 +24,13 @@ jobs:
           ref: built
 
       - name: Log in to Docker Hub
-        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        uses: docker/login-action@v1
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Log in to the Container registry
-        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        uses: docker/login-action@v1
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -38,7 +38,7 @@ jobs:
 
       - name: Extract metadata (tags, labels) for "builder"
         id: builder_meta
-        uses: docker/metadata-action@8b842e721d38d18bea23b57f4c040e53331f4ca2
+        uses: docker/metadata-action@v3
         with:
           images: |
             ${{ secrets.DOCKERHUB_USERNAME }}/builder
@@ -46,14 +46,14 @@ jobs:
 
       - name: Extract metadata (tags, labels) for "dev_server"
         id: dev_server_meta
-        uses: docker/metadata-action@8b842e721d38d18bea23b57f4c040e53331f4ca2
+        uses: docker/metadata-action@v3
         with:
           images: |
             ${{ secrets.DOCKERHUB_USERNAME }}/dev_server
             ghcr.io/${{ github.repository_owner }}/dev_server
 
       - name: Build and push image for "builder"
-        uses: docker/build-push-action@1bc1040caef9e604eb543693ba89b5bf4fc80935
+        uses: docker/build-push-action@v2
         with:
           context: builder
           push: true
@@ -61,7 +61,7 @@ jobs:
           labels: ${{ steps.builder_meta.outputs.labels }}
 
       - name: Build and push image for "dev-server"
-        uses: docker/build-push-action@1bc1040caef9e604eb543693ba89b5bf4fc80935
+        uses: docker/build-push-action@v2
         with:
           context: dev-server
           push: true
