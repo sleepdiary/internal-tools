@@ -29,6 +29,13 @@ then . /opt/sleepdiary/utils.sh
 else printf "\033[1;31m/opt/sleepdiary/utils.sh not found - some checks bypassed.\033[0m\n"
 fi
 
+run_merge() {
+    MERGE_OPTIONS=
+    MERGE_OPTIONS="$MERGE_OPTIONS --strategy-option=theirs"
+    MERGE_OPTIONS="$MERGE_OPTIONS --no-edit"
+    git merge $MERGE_OPTIONS "$@"
+}
+
 run_tests() {
 
     ./bin/run.sh build
@@ -175,7 +182,7 @@ $( sed -e 's/^/      /' test-output.txt )
         # Merge changes from main
         #
 
-        git merge --strategy-option=theirs --no-edit origin/main
+        run_merge origin/main
 
         #
         # Run the build itself
