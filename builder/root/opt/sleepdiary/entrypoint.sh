@@ -29,6 +29,13 @@ then . /opt/sleepdiary/utils.sh
 else printf "\033[1;31m/opt/sleepdiary/utils.sh not found - some checks bypassed.\033[0m\n"
 fi
 
+run_merge() {
+    MERGE_OPTIONS=
+    #MERGE_OPTIONS="$MERGE_OPTIONS --strategy-option=theirs" # NO!  These conflicts sometimes need manual intervention
+    MERGE_OPTIONS="$MERGE_OPTIONS --no-edit"
+    git merge $MERGE_OPTIONS "$@"
+}
+
 run_tests() {
 
     ./bin/run.sh build
@@ -47,6 +54,56 @@ run_tests() {
         echo
         echo "Please fix the above test errors"
         return "$RESULT"
+    fi
+
+    RESULT="0"
+
+    if ! git diff --quiet
+    then
+
+        echo "Please stash your changes to run the merge tests"
+        exit 1
+
+    elif [ "$(cat .git/HEAD )" = "ref: refs/heads/main" ]
+    then
+
+        echo
+        git checkout --quiet built
+        run_merge --no-commit main
+        RESULT="$?"
+        [ "$RESULT" != 0 ] && git diff
+        [ -e .git/MERGE_HEAD ] && git merge --abort
+        git checkout --quiet main
+
+    elif [ "$(cat .git/HEAD )" = "ref: refs/heads/built" ]
+    then
+
+        echo
+        run_merge --no-commit main
+        RESULT="$?"
+        [ "$RESULT" != 0 ] && git diff
+        [ -e .git/MERGE_HEAD ] && git merge --abort
+
+    else
+
+        echo "Please do \`git checkout main\` or \`git checkout built\` to run the merge tests"
+        exit 1
+
+    fi
+
+    if [ "$RESULT" -ne 0 ]
+    then
+        cat <<EOF
+
+These changes cannot be merged into the "built" branch.
+Please try one of the following:
+
+a) Edit your commits to avoid the merge conflict(s) above
+b) push the commit anyway and tell the maintainers how to resolve the conflict manually
+c) see https://github.com/sleepdiary/docs/development/minimising-planned-maintenance
+
+EOF
+        exit 2
     fi
 
 }
@@ -175,7 +232,7 @@ $( sed -e 's/^/      /' test-output.txt )
         # Merge changes from main
         #
 
-        git merge --strategy-option=theirs --no-edit origin/main
+        run_merge origin/main
 
         #
         # Run the build itself
