@@ -116,7 +116,7 @@ const server = http.createServer( (req,res) => {
                     res.end("Read error\n");
                 } else {
                     renderer.process(data.toString()).then( file => {
-                        let messages = file.messages.map( msg =>
+                        let messages = file.messages.sort((a,b) => a.line - b.line || a.column - b.column).map( msg =>
                             `<tr><td>${msg.line}</td><td>${msg.column}</td><td>${msg.ruleId}</td><td>${escape(msg.reason)}</td></tr>`
                         );
                         if ( messages.length ) {
