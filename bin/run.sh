@@ -102,6 +102,7 @@ case "$1" in
         ;;
 
     *)
+        echo "Usage: $0 <test|build|build-local|upgrade|merge-and-push>"
         exit 2
         ;;
 
