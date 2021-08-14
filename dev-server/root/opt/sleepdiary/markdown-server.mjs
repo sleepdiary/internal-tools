@@ -9,6 +9,7 @@ import { remark } from 'remark';
 import remarkPresetLintMarkdownStyleGuide from 'remark-preset-lint-markdown-style-guide';
 import remarkLintMaximumLineLength from 'remark-lint-maximum-line-length';
 import remarkLintOrderedListMarkerValue from 'remark-lint-ordered-list-marker-value';
+import remarkLintListItemSpacing from 'remark-lint-list-item-spacing';
 import remarkHtml from 'remark-html';
 import remarkGithub from 'remark-github';
 import escape from 'escape-html';
@@ -19,6 +20,7 @@ const renderer = remark()
       .use(remarkGithub, { repository: 'https://github.com/sleepdiary/some-project.git' } )
       .use(remarkLintMaximumLineLength,false)
       .use(remarkLintOrderedListMarkerValue,'ordered')
+      .use(remarkLintListItemSpacing,false)
 ;
 
 const header = `<!DOCTYPE html>
