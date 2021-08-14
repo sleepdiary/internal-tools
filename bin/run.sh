@@ -24,6 +24,15 @@ case "$1" in
         done
         ;;
 
+    build-local)
+        for DIR in $SUBDIRECTORIES
+        do
+            cd "$DIR"
+            "./run.sh" build-local || exit 2
+            cd - > /dev/null
+        done
+        ;;
+
     upgrade)
         for DIR in $SUBDIRECTORIES
         do
