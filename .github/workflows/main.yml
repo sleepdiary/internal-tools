@@ -47,6 +47,14 @@ jobs:
           images: |
             ghcr.io/${{ github.repository_owner }}/builder
 
+      - name: Extract metadata (tags, labels) for "dev_server"
+        id: dev_server_meta
+        uses: docker/metadata-action@v3
+        with:
+          images: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/dev_server
+            ghcr.io/${{ github.repository_owner }}/dev_server
+
       - name: Build and push image for "builder"
         uses: docker/build-push-action@v2
         with:
@@ -54,3 +62,11 @@ jobs:
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/builder:pre-release
           labels: ${{ steps.builder_meta.outputs.labels }}
+
+      - name: Build and push image for "dev-server"
+        uses: docker/build-push-action@v2
+        with:
+          context: dev-server
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/dev-server:pre-release
+          labels: ${{ steps.dev_server_meta.outputs.labels }}
