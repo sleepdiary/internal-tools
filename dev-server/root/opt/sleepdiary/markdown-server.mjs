@@ -8,6 +8,7 @@ import fs from 'fs';
 import { remark } from 'remark';
 import remarkPresetLintMarkdownStyleGuide from 'remark-preset-lint-markdown-style-guide';
 import remarkLintMaximumLineLength from 'remark-lint-maximum-line-length';
+import remarkLintOrderedListMarkerValue from 'remark-lint-ordered-list-marker-value';
 import remarkHtml from 'remark-html';
 import remarkGithub from 'remark-github';
 import escape from 'escape-html';
@@ -17,6 +18,7 @@ const renderer = remark()
       .use(remarkHtml)
       .use(remarkGithub, { repository: 'https://github.com/sleepdiary/some-project.git' } )
       .use(remarkLintMaximumLineLength,false)
+      .use(remarkLintOrderedListMarkerValue,'ordered')
 ;
 
 const header = `<!DOCTYPE html>
