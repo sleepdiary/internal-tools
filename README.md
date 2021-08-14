@@ -41,7 +41,7 @@ git reset --hard unsafe-canonical/main
 git push --force safe-personal unsafe-canonical/main:main
 ```
 
-Once you have confirmed the new tag won't break anything, [create a new planned maintenance issue](https://github.com/sleepdiary/internal-tools/issues/new?assignees=&labels=planned-maintenance&template=planned-maintenance.md&title=%5BPlanned+maintenance%5D%3A+Update+the+builder) and [create a PR to pull `latest` 🠔 `main`](https://github.com/sleepdiary/internal-tools/compare/latest...main?expand=1).  The steps to take during maintenance should be something like:
+Once you have confirmed the new tag won't break anything, [create a new planned maintenance issue](https://github.com/sleepdiary/internal-tools/issues/new?assignees=&labels=planned-maintenance&template=planned-maintenance.md&title=Planned+maintenance%3A+Pull+main+into+latest) and [create a PR to pull `latest` 🠔 `main`](https://github.com/sleepdiary/internal-tools/compare/latest...main?expand=1).  The steps to take during maintenance should be something like:
 
 1. Accept the PR
 2. Publish Docker images
