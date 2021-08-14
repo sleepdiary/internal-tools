@@ -27,10 +27,9 @@ jobs:
 
       - name: Update Dockerfile
         run: |
-          cd builder || exit 2
           ./bin/run.sh build || exit 2
-          git add -f Dockerfile || exit 2
-          git diff --quiet || git commit Dockerfile -m 'Update Dockerfile'
+          git add -f */Dockerfile || exit 2
+          git diff --quiet || git commit */Dockerfile -m 'Update Dockerfile'
         env:
           GIT_AUTHOR_NAME: "Automatic updater [bot]"
           GIT_AUTHOR_EMAIL: "sleepdiary-bot@pileofstuff.org"
@@ -55,8 +54,8 @@ jobs:
         uses: docker/metadata-action@v3
         with:
           images: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/builder
             ghcr.io/${{ github.repository_owner }}/builder
+            ${{ secrets.DOCKERHUB_USERNAME }}/builder
 
       - name: Extract metadata (tags, labels) for "dev_server"
         id: dev_server_meta
