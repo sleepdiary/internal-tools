@@ -28,7 +28,7 @@ jobs:
       - name: Update Dockerfile
         run: |
           cd builder || exit 2
-          ./run.sh build || exit 2
+          ./bin/run.sh build || exit 2
           git add -f Dockerfile || exit 2
           git diff --quiet || git commit Dockerfile -m 'Update Dockerfile'
         env:

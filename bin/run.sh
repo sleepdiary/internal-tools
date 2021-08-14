@@ -2,7 +2,8 @@
 #
 # Builds the container used by other projects
 
-SUBDIRECTORIES="builder dev-server"
+BASE_DIRECTORY="$( dirname "$0" )/.."
+SUBDIRECTORIES="$BASE_DIRECTORY/builder $BASE_DIRECTORY/dev-server"
 
 case "$1" in
 
@@ -20,6 +21,15 @@ case "$1" in
         do
             cd "$DIR"
             "./run.sh" build || exit 2
+            cd - > /dev/null
+        done
+        ;;
+
+    build-local)
+        for DIR in $SUBDIRECTORIES
+        do
+            cd "$DIR"
+            "./run.sh" build-local || exit 2
             cd - > /dev/null
         done
         ;;
@@ -92,6 +102,7 @@ case "$1" in
         ;;
 
     *)
+        echo "Usage: $0 <test|build|build-local|upgrade|merge-and-push>"
         exit 2
         ;;
 
