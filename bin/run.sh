@@ -2,7 +2,8 @@
 #
 # Builds the container used by other projects
 
-SUBDIRECTORIES="builder dev-server"
+BASE_DIRECTORY="$( dirname "$0" )/.."
+SUBDIRECTORIES="$BASE_DIRECTORY/builder $BASE_DIRECTORY/dev-server"
 
 case "$1" in
 
