@@ -2,11 +2,25 @@
 
 if ! [ -x "$PWD/bin/run.sh" ]
 then
+    cat <<EOF
+Could not find $PWD/bin/run.sh
+
+Please try one of the following:
+
+a) rerun docker with \`-v /path/to/sleepdiary/app:/app\`
+b) check the logs below for a bug to fix
+c) raise an issue in the "internal tools" repository
+   * link: https://github.com/sleepdiary/internal-tools/issues/new/choose
+   * please include the command you used to run this program
+   * please paste everything below into the bug report
+
+EOF
     echo "Contents of $PWD:"
     ls -lha
+    echo
     echo "Contents of $PWD/bin:"
     ls -lha bin
-    echo "Please create a $PWD/bin/run.sh" >&2
+    echo
     exit 2
 fi
 
