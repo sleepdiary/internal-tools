@@ -26,7 +26,7 @@ const renderer = remark()
 const header = `<!DOCTYPE html>
 <html>
 <head>
-<title>Markdown document</title>
+<title>TITLE</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
 	.markdown-body {
@@ -118,6 +118,9 @@ const server = http.createServer( (req,res) => {
                     res.end("Read error\n");
                 } else {
                     renderer.process(data.toString()).then( file => {
+                        let title = filename.replace(/^.*\//,'');
+                        data.toString().replace( /^#+ (.*)/, (_,t) => title = t );
+                        title = title.replace( /([^-_ A-Za-z0-9])/g, c => `&#${c.codePointAt(0)};` );
                         let messages = file.messages.sort((a,b) => a.line - b.line || a.column - b.column).map( msg =>
                             `<tr><td>${msg.line}</td><td>${msg.column}</td><td>${msg.ruleId}</td><td>${escape(msg.reason)}</td></tr>`
                         );
@@ -127,7 +130,7 @@ const server = http.createServer( (req,res) => {
                         res.setHeader("Content-Type", "text/html; charset=utf-8");
                         res.writeHead(200);
                         res.end(
-                            header
+                            header.replace( /TITLE/, title )
                                 + String(file)
                                 + messages
                                 + footer
