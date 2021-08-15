@@ -33,7 +33,18 @@ run_merge() {
     MERGE_OPTIONS=
     #MERGE_OPTIONS="$MERGE_OPTIONS --strategy-option=theirs" # NO!  These conflicts sometimes need manual intervention
     MERGE_OPTIONS="$MERGE_OPTIONS --no-edit"
-    git merge $MERGE_OPTIONS "$@"
+    if git merge $MERGE_OPTIONS "$@"
+    then
+        return 0
+    else
+        git diff
+        echo
+        LOG_COMMAND="git log --oneline --graph $( git rev-parse --short "$1" ) $( git rev-parse --short HEAD ) --not $(git merge-base $( git rev-parse --short "$1" ) $( git rev-parse --short HEAD ) )^"
+        echo "$LOG_COMMAND"
+        $LOG_COMMAND
+        echo
+        return 2
+    fi
 }
 
 run_tests() {
@@ -69,9 +80,8 @@ run_tests() {
 
         echo
         git checkout --quiet built
-        run_merge --no-commit main
+        run_merge main --no-commit
         RESULT="$?"
-        [ "$RESULT" != 0 ] && git diff
         [ -e .git/MERGE_HEAD ] && git merge --abort
         git checkout --quiet main
 
@@ -79,9 +89,8 @@ run_tests() {
     then
 
         echo
-        run_merge --no-commit main
+        run_merge main --no-commit
         RESULT="$?"
-        [ "$RESULT" != 0 ] && git diff
         [ -e .git/MERGE_HEAD ] && git merge --abort
 
     else
