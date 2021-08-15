@@ -48,6 +48,11 @@ run_merge() {
     fi
 }
 
+MAIN=main
+if ! git rev-parse --verify "$MAIN" 2>/dev/null
+then MAIN=origin/main
+fi
+
 run_tests() {
 
     ./bin/run.sh build
@@ -81,22 +86,22 @@ run_tests() {
 
         echo
         git checkout --quiet built
-        run_merge main --no-commit
+        run_merge "$MAIN" --no-commit
         RESULT="$?"
         [ -e .git/MERGE_HEAD ] && git merge --abort
-        git checkout --quiet main
+        git checkout --quiet "$MAIN"
 
     elif [ "$(cat .git/HEAD )" = "ref: refs/heads/built" ]
     then
 
         echo
-        run_merge main --no-commit
+        run_merge "$MAIN" --no-commit
         RESULT="$?"
         [ -e .git/MERGE_HEAD ] && git merge --abort
 
     else
 
-        echo "Please do \`git checkout main\` or \`git checkout built\` to run the merge tests"
+        echo "Please do \`git checkout $MAIN\` or \`git checkout built\` to run the merge tests"
         exit 1
 
     fi
@@ -232,9 +237,9 @@ $( sed -e 's/^/      /' test-output.txt )
         # Check if there's anything to do
         #
 
-        if ! git rev-list HEAD..origin/main | grep -q .
+        if ! git rev-list HEAD.."$MAIN" | grep -q .
         then
-            echo "'main' has already been merged - stopping"
+            echo "'$MAIN' has already been merged - stopping"
             exit 0
         fi
 
@@ -242,7 +247,7 @@ $( sed -e 's/^/      /' test-output.txt )
         # Merge changes from main
         #
 
-        run_merge origin/main
+        run_merge "$MAIN"
 
         #
         # Run the build itself
