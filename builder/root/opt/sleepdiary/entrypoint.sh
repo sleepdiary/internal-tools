@@ -211,6 +211,8 @@ $( sed -e 's/^/      /' test-output.txt )
 
         rm -f test-output.txt
 
+        exit "$RESULT"
+
         ;;
 
     build)
