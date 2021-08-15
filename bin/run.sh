@@ -75,7 +75,7 @@ case "$1" in
         # Merge changes from main
         #
 
-        git merge --strategy-option=theirs --no-edit origin/main
+        git merge --no-edit origin/main
 
         #
         # Run the build itself
