@@ -37,6 +37,7 @@ run_merge() {
     then
         return 0
     else
+        echo "Failed to merge $( git rev-parse --short "$1" ) into $( git rev-parse --short HEAD )"
         git diff
         echo
         LOG_COMMAND="git log --oneline --graph $( git rev-parse --short "$1" ) $( git rev-parse --short HEAD ) --not $(git merge-base $( git rev-parse --short "$1" ) $( git rev-parse --short HEAD ) )^"
