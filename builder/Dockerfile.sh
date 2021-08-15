@@ -20,6 +20,10 @@ APT_PACKAGES="$APT_PACKAGES inotify-tools"
 NPM_PACKAGES="$NPM_PACKAGES jasmine"
 APT_PACKAGES="$APT_PACKAGES"
 
+# The dashboard uses vue:
+NPM_PACKAGES="$NPM_PACKAGES @vue/cli-service"
+APT_PACKAGES="$APT_PACKAGES"
+
 # Header:
 cat <<EOF
 FROM node:$NODE_VERSION
