@@ -70,10 +70,10 @@ run_tests() {
 
     RESULT="0"
 
-    if ! git diff --quiet
+    if ! git diff --quiet HEAD
     then
 
-        echo "Please stash your changes to run the merge tests"
+        echo "Please stash your changes before running the tests"
         exit 1
 
     elif [ "$(cat .git/HEAD )" = "ref: refs/heads/main" ]
