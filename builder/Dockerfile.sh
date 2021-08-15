@@ -46,6 +46,6 @@ footer
 
 cat <<EOF
 COPY root /
-RUN chmod 755 /opt/sleepdiary/*.sh /app/bin/run.sh
+RUN chmod 755 /opt/sleepdiary/*.sh
 WORKDIR /app
 EOF

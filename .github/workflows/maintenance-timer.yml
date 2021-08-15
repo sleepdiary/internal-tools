@@ -1,0 +1,155 @@
+name: Announce maintenance times
+
+# This makes sure you can't forget about upcoming planned maintenace,
+# or get confused about when it starts and ends.
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+env:
+  # If you edit the line below, make sure to also edit the matching "uses" line
+  SOURCE: sleepdiary/planned-maintenance-times
+
+jobs:
+  comment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Upgrade SOURCE variable
+        # env vars are only accessible in steps: https://github.community/t/how-to-use-env-context/16975
+        # convert to step outputs so we can use them below
+        id: inputs
+        run: echo "::set-output name=source::$SOURCE"
+      - name: Get maintenance window
+        id: settings
+        uses: sleepdiary/planned-maintenance-times@main
+      - uses: actions/github-script@v4
+        with:
+          script: |
+            const HALF_AN_HOUR = 1000*60*30,
+                  now = new Date().getTime(),
+                  start_time = new Date('${{ steps.settings.outputs.maintenance-window-start }}').getTime(),
+                  end_time = new Date('${{ steps.settings.outputs.maintenance-window-end }}').getTime(),
+                  time_before_start = Math.ceil( ( start_time - now ) / HALF_AN_HOUR ),
+                  time_before_end   = Math.ceil( (   end_time - now ) / HALF_AN_HOUR ),
+                  exact_time_before_end  = Math.floor( (   end_time - now ) / (1000*60) )
+            ;
+
+            let issue;
+            '${{ steps.settings.outputs.maintenance-url }}'.replace(/\/issues\/([0-9]+)/, (_,i) => issue = parseInt(i,10) );
+
+            if ( !issue ) {
+                console.log("No issue defined");
+                process.exit(1);
+            }
+
+            function send_message(body) {
+                console.log("Sending:\n" + body);
+                github.issues.createComment({
+                    issue_number: issue,
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    body: body
+                });
+            }
+
+            if ( time_before_start > 48 && !( time_before_start % 48 ) ) {
+
+                send_message(`# ${time_before_start/48} days notice of planned maintenance
+
+            The maintenance window will open a little less than ${time_before_start*2} hours after this message was posted.  [Edit \`index.js\`](https://github.com/${{ env.SOURCE }}/edit/main/index.js) if you want to change that.
+
+            I'll remind you again tomorrow.
+            `);
+
+            } else if ( time_before_start >= 0 ) {
+
+                switch ( time_before_start ) {
+
+                case 48:
+                    send_message(`# One day notice of planned maintenance
+
+            The maintenance window will open at about this time tomorrow.  Make sure you're prepared, or [edit \`index.js\`](https://github.com/${{ env.SOURCE }}/edit/main/index.js) if you want to change that.
+
+            I'm next scheduled to let you know when there's *twelve hours left*, but it might be a bit later if GitHub Actions' scheduler is being slow today.
+            `);
+                    break;
+                case 24:
+                    send_message(`# Twelve hours notice of planned maintenance
+
+            The maintenance window will open in less than twelve hours.  [Edit \`index.js\`](https://github.com/${{ env.SOURCE }}/edit/main/index.js) if you're not sure you'll be ready then.
+
+            I'm next scheduled to let you know when there's *one hour left*, but it might be a bit later if GitHub Actions' scheduler is being slow today.
+            `);
+                    break;
+                case 2:
+                    send_message(`# One hour notice of planned maintenance
+
+            The maintenance window will open about an hour from now.  This is your last chance to [edit \`index.js\`](https://github.com/${{ env.SOURCE }}/edit/main/index.js) if you're not ready yet.
+
+            I'm next scheduled to let you know when there's *30 minutes left*, but it might be a bit later if GitHub Actions' scheduler is being slow today.
+            `);
+                    break;
+                case 1:
+                    send_message(`# 30 minutes notice of planned maintenance
+
+            The maintenance window is about to open.  [See \`index.js\`](https://github.com/${{ env.SOURCE }}/blob/main/index.js) for exact times.
+
+            1. Read through the ticket and start preparing now
+            3. [Manually generate a notice](https://github.com/andrew-sayers/internal-tools/actions/workflows/maintenance-timer.yml) when the window opens
+               * this ensures the notice is sent on time, even if GitHub Actions is being slow today
+            `);
+                    break;
+                case 0:
+                    send_message(`# Start the maintenance procedure
+
+            The maintenance window is now open.  Only maintenance-related pull requests are allowed.
+
+            Please follow the procedure described in the first message.
+            `);
+                    break;
+
+                default:
+                    console.log(`Not sending - time_before_start == ${time_before_start}`);
+
+                }
+
+            } else if ( time_before_end >= 0 ) {
+
+                switch ( time_before_end ) {
+
+                case 0:
+                    send_message(`# Maintenance window closed!
+
+            Non-maintenance-related pull requests will now be allowed, maintenance-related pull requests will be disallowed.
+            `);
+                    break;
+
+                case 1:
+                    send_message(`# Start the fallback procedure
+
+            The maintenance window will close in less than ${exact_time_before_end} minutes.  After that, we'll switch back to allowing non-maintenance pull requests.  There should be just enough time to execute the falback procedure now.
+
+            This is the last notification before the maintenance window closes.  Depending how much GitHub Actions' scheduler is delayed today, the final notification may come in a while after it closes.
+            `);
+                    break;
+
+                default:
+
+                    send_message(
+                        `# ${Math.ceil( ( now - start_time ) / ( end_time - start_time ) * 100 )}% of the maintenance window elapsed
+
+            The maintenance window will close in less than ${exact_time_before_end} minutes.  If you're not sure you'll be finished by then, gather any data you need then execute the fallback procedure.
+
+            You can always try again another day.
+            `
+                    );
+
+                }
+
+            } else {
+
+                console.log(`Not sending - time_before_start == ${time_before_start}, time_before_end == ${time_before_end}`);
+
+            }

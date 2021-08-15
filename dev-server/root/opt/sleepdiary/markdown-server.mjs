@@ -8,21 +8,16 @@ import fs from 'fs';
 import { remark } from 'remark';
 import remarkPresetLintMarkdownStyleGuide from 'remark-preset-lint-markdown-style-guide';
 import remarkLintMaximumLineLength from 'remark-lint-maximum-line-length';
+import remarkLintOrderedListMarkerValue from 'remark-lint-ordered-list-marker-value';
+import remarkLintListItemSpacing from 'remark-lint-list-item-spacing';
 import remarkHtml from 'remark-html';
 import remarkGithub from 'remark-github';
 import escape from 'escape-html';
 
-const renderer = remark()
-      .use(remarkPresetLintMarkdownStyleGuide)
-      .use(remarkHtml)
-      .use(remarkGithub, { repository: 'https://github.com/sleepdiary/some-project.git' } )
-      .use(remarkLintMaximumLineLength,false)
-;
-
 const header = `<!DOCTYPE html>
 <html>
 <head>
-<title>Markdown document</title>
+<title>TITLE</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
 	.markdown-body {
@@ -113,21 +108,31 @@ const server = http.createServer( (req,res) => {
                     res.writeHead(500);
                     res.end("Read error\n");
                 } else {
-                    renderer.process(data.toString()).then( file => {
-                        let messages = file.messages.map( msg =>
-                            `<tr><td>${msg.line}</td><td>${msg.column}</td><td>${msg.ruleId}</td><td>${escape(msg.reason)}</td></tr>`
-                        );
-                        if ( messages.length ) {
-                            messages = messages_header + messages.join("\n") + messages_footer;
-                        }
-                        res.setHeader("Content-Type", "text/html; charset=utf-8");
-                        res.writeHead(200);
-                        res.end(
-                            header
-                                + String(file)
-                                + messages
-                                + footer
-                        );
+                    remark()
+                        .use(remarkPresetLintMarkdownStyleGuide)
+                        .use(remarkHtml)
+                        .use(remarkLintMaximumLineLength,false)
+                        .use(remarkLintOrderedListMarkerValue,'ordered')
+                        .use(remarkLintListItemSpacing,false)
+                        .use(remarkGithub, { repository: `https://github.com/sleepdiary/${req.url.replace(/^\//,'').replace(/\/.*/,'')}.git` } )
+                        .process(data.toString()).then( file => {
+                            let title = filename.replace(/^.*\//,'');
+                            data.toString().replace( /^#+ (.*)/, (_,t) => title = t );
+                            title = title.replace( /([^-_ A-Za-z0-9])/g, c => `&#${c.codePointAt(0)};` );
+                            let messages = file.messages.sort((a,b) => a.line - b.line || a.column - b.column).map( msg =>
+                                `<tr><td>${msg.line}</td><td>${msg.column}</td><td>${msg.ruleId}</td><td>${escape(msg.reason)}</td></tr>`
+                            );
+                            if ( messages.length ) {
+                                messages = messages_header + messages.join("\n") + messages_footer;
+                            }
+                            res.setHeader("Content-Type", "text/html; charset=utf-8");
+                            res.writeHead(200);
+                            res.end(
+                                header.replace( /TITLE/, title )
+                                    + String(file)
+                                    + messages
+                                    + footer
+                            );
                     })
                 }
             });
