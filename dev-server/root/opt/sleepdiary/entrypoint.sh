@@ -52,7 +52,7 @@ tmux new-session -d -s console -n Shell1 -d "cd /var/log && exec tail -n 0 -f $(
 
 for DIR in /app/*
 do
-    if [ -x "$DIR/bin/run.sh" ]
+    if [ -x "$DIR/bin/run.sh" -a "$DIR" != "/app/internal-tools" ]
     then
         COMMAND="cd '$DIR' && ./bin/run.sh serve"
         echo "$COMMAND" >&2
