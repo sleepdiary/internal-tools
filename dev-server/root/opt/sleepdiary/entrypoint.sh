@@ -63,6 +63,8 @@ done
 
 tmux set-option -t console:0 status off
 tmux set-option -t console:0 remain-on-exit on
+tmux set-option -t console:0 pane-border-status top
+tmux set-option -t console:0 pane-border-format " #{pane_index} #{pane_current_path} "
 
 #tmux attach -tconsole
 
