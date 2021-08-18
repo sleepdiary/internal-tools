@@ -46,6 +46,25 @@ fi
 
 install_npm_packages $NPM_PACKAGES
 install_apt_packages $APT_PACKAGES
+
+# VuePress requires node_modules to be in the same directory as the package itself:
+# * installing globally with `npm install -g` doesn't install all the dependencies
+# * installing elsewhere and symlinking causes errors
+# * installing elsewhere and symlinking subdirectories causes errors
+# * installing elsewhere and hardlinking works, so long as we're on the same filesystem
+# * installing elsewhere and copying works, but is slow
+#
+# ... so we install elsewher and use `install-directory.sh`
+#
+# Note: it's possible I've made some silly mistake that causes all of this,
+# but I can't get useful guidance or error messages to figure out what.
+cat <<EOF
+\\
+&& mkdir /opt/sleepdiary/vuepress \\
+&& cd /opt/sleepdiary/vuepress \\
+&& npm install vuepress@next @vuepress/plugin-search@next @vuepress/theme-default@next \\
+EOF
+
 footer
 
 cat <<EOF
