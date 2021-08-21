@@ -48,38 +48,23 @@ export VUE_APP_DEV_SERVER="localhost:8081"
 
 tmux start-server
 
-N=0
+tmux new-session -d -s console -n Shell1 -d "cd /var/log && exec tail -n 0 -f $( find /var/log -type f -name \*log )"
+
 for DIR in /app/*
 do
-    if [ -x "$DIR/bin/run.sh" ]
+    if [ -x "$DIR/bin/run.sh" -a "$DIR" != "/app/internal-tools" ]
     then
         COMMAND="cd '$DIR' && ./bin/run.sh serve"
-        case "$N" in
-            0)
-                tmux new-session -d -s console -n Shell1 -d "$COMMAND"
-                N=2
-                ;;
-
-            4)
-                tmux split-window -t console:0 "$COMMAND"
-                tmux select-layout -t console:0 tiled
-                N=1
-                ;;
-
-            *)
-                tmux split-window -t console:0 "$COMMAND"
-                N="$((N+1))"
-                ;;
-        esac
+        echo "$COMMAND" >&2
+        tmux split-window -t console:0 "$COMMAND"
+        tmux select-layout -t console:0 tiled
     fi
 done
 
-tmux split-window -t console:0 "echo 'dev-server: watching /var/log'; exec tail -n 0 -f $( find /var/log -type f -name \*log )"
-[ "$N" = 4 ] && tmux select-layout -t console:0 tiled
-tmux split-window -t console:0 "tmux bind-key r respawn-pane ; cat /opt/sleepdiary/help.txt ; exec /bin/bash -l"
-tmux select-layout -t console:0 tiled
 tmux set-option -t console:0 status off
 tmux set-option -t console:0 remain-on-exit on
+tmux set-option -t console:0 pane-border-status top
+tmux set-option -t console:0 pane-border-format " #{pane_index} #{pane_current_path} "
 
 #tmux attach -tconsole
 

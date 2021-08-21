@@ -3,7 +3,9 @@
 # Builds the container used by other projects
 
 BASE_DIRECTORY="$( dirname "$0" )/.."
-SUBDIRECTORIES="$BASE_DIRECTORY/builder $BASE_DIRECTORY/dev-server"
+SUBDIRECTORIES=""
+SUBDIRECTORIES="$SUBDIRECTORIES $BASE_DIRECTORY/builder"
+SUBDIRECTORIES="$SUBDIRECTORIES $BASE_DIRECTORY/dev-server"
 
 case "$1" in
 
@@ -73,7 +75,7 @@ case "$1" in
         # Merge changes from main
         #
 
-        git merge --strategy-option=theirs --no-edit origin/main
+        git merge --no-edit origin/main
 
         #
         # Run the build itself
