@@ -22,7 +22,6 @@ jobs:
         with:
           fetch-depth: 0
 
-
       - name: Update Dockerfile
         run: |
           ./bin/run.sh build || exit 2

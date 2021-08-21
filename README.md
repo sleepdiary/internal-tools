@@ -14,7 +14,7 @@ To build the tools locally, do:
 /path/to/sleepdiary/internal-tools/bin/run.sh build-local
 ```
 
-This command builds local copies of the `sleepdiaryproject/*` containers, so it's not designed run inside a container itself.  As well as installing Docker (or an equivalent), you will need to install some common development packages like `curl` and `git`.
+This command builds local copies of the `sleepdiaryproject/*` containers, so it's not designed run inside a container itself.  That means you need to install Docker (or an equivalent), `curl`, `git` and possibly some other common development packages.
 
 Once you've tested your changes locally, create a pull request in the normal way.  If and when your PR is accepted, [`main.yml`](.github/workflows/main.yml) will publish your changes to the `pre-release` tags in [our GitHub Packages repository](https://github.com/sleepdiary/internal-tools/pkgs/container/builder).  Other repositories use the `latest` tag, so this will not affect them.
 
