@@ -30,6 +30,18 @@
                 Setup
               </template>
 
+              <template v-else-if="action.type == 'check_sites'">
+                <template v-if="action.title">
+                  {{action.title}}
+                </template>
+                <template v-else-if="action.sites.length == 1">
+                  Check one site
+                </template>
+                <template v-else>
+                  Check {{action.prs.length}} sites
+                </template>
+              </template>
+
               <template v-else-if="action.type == 'accept_prs'">
                 <template v-if="action.title">
                   {{action.title}}
@@ -101,6 +113,30 @@
                     </v-text-field>
                   </li>
                 </ol>
+              </template>
+
+              <template v-else-if="action.type == 'check_sites'">
+                <v-simple-table>
+                  <template v-slot:default>
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th>Comment</th>
+                        <th>Link</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        v-for="(site,n) in action.sites"
+                        :key="n"
+                        >
+                        <td>{{site.title}}</td>
+                        <td>{{site.comment}}</td>
+                        <td><a :href="site.url">{{site.url}}</a></td>
+                      </tr>
+                    </tbody>
+                  </template>
+                </v-simple-table>
               </template>
 
               <template v-else-if="action.type == 'accept_prs'">
@@ -302,6 +338,7 @@
                     switch ( action.type ) {
                     case "setup":
                     case "teardown":
+                    case "check_sites":
                         break;
                     case "accept_prs":
                         action.prs.forEach(
