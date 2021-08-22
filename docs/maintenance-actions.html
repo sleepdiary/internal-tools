@@ -31,7 +31,15 @@
               </template>
 
               <template v-else-if="action.type == 'accept_prs'">
-                Accept PRs
+                <template v-if="action.title">
+                  {{action.title}}
+                </template>
+                <template v-else-if="action.workflows.length == 1">
+                  Accept one PR
+                </template>
+                <template v-else>
+                  Accept {{action.prs.length}} PRs
+                </template>
               </template>
 
               <template v-else-if="action.type == 'run_workflows'">
