@@ -15,11 +15,13 @@
           Please fix the following error(s):
           <pre>{{error}}</pre>
         </template>
-        <v-stepper v-model="step_no" style="margin-bottom:64px" v-else>
-          <v-stepper-header>
+        <v-stepper v-else v-model="step_no" style="margin-bottom:64px" vertical>
+          <div
+            v-for="(action,n) in actions"
+            :key="n"
+            >
+
             <v-stepper-step
-              v-for="(action,n) in actions"
-              :key="n"
               :complete="step_no > n"
               :step="n"
               editable
@@ -54,12 +56,8 @@
               </template>
 
             </v-stepper-step>
-          </v-stepper-header>
 
-          <v-stepper-items>
             <v-stepper-content
-              v-for="(action,n) in actions"
-              :key="n"
               :step="n"
               >
 
@@ -214,7 +212,7 @@
               </template>
 
             </v-stepper-content>
-          </v-stepper-items>
+          </div>
 
         </v-stepper>
 
