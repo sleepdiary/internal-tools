@@ -1,7 +1,7 @@
 ---
 name: Planned maintenance
 about: Tracking ticket for planned maintenance
-title: "[Planned maintenance]: TODO: purpose of this maintenance"
+title: "Planned maintenance: TODO: purpose of this maintenance"
 labels: planned-maintenance
 assignees: ''
 
@@ -17,17 +17,17 @@ This issue tracks a period of planned maintenance.  For example, an update that 
 
 ## Planning
 
-1. [ ] ensure everyone involved in the project has followed the [maintainer environment recommendations](https://github.com/sleepdiary/docs/development/maintainer-environment-recommendations.md)
-2. [ ] ensure everyone has read about [minimising planned maintenance](minimising-planned-maintenance.md) and can't think of a way to reduce this maintenance any further
+1. [ ] ensure everyone involved in the project has followed the [maintainer environment recommendations](https://github.com/sleepdiary/docs/blob/main/development/maintainer-environment-recommendations.md)
+2. [ ] ensure everyone has read about [minimising planned maintenance](https://github.com/sleepdiary/docs/blob/main/development/minimising-planned-maintenance.md) and can't think of a way to reduce this maintenance any further
 3. [ ] look through [the list of previous planned maintenances](https://github.com/sleepdiary/internal-tools/issues?q=label%3Aplanned-maintenance) and find anything to learn from them
 4. [ ] assign one person to lead this task
 5. [ ] fill out the summary above
 6. [ ] [update the planned maintenance times](https://github.com/sleepdiary/planned-maintenance-times/edit/main/index.js) to match the summary
 7. [ ] make sure [the maintenance timer](https://github.com/sleepdiary/internal-tools/actions/workflows/maintenance-timer.yml) is sending regular messages to this issue
 
-The maintenance window should be reasonably pessimistic.  How long would it take to slowly follow all the steps, wait until you're sure an action has hung and isn't just being slow, do some more test runs to generate all the diagnostics you need, then run the fallback procedure?
+The maintenance window should be reasonably pessimistic.  How long would it take to slowly follow all the steps, wait until you're sure an action has hung and isn't just being slow, run some diagnostics (that also hang), then follow the fallback procedure?
 
-Some automations below will be based on these times.  No-one will mind if you manually close the maintenance window ahead of schedule, but setting times that are too short (or going past your deadline) can cause these scripts to misinform people or incorrectly disable safeguards.
+Some automations are based on these times.  No-one will mind if you manually close the maintenance window ahead of schedule, but continuing past the deadline can cause these scripts to misinform people or incorrectly disable safeguards.
 
 ## Fallback plan
 
@@ -37,9 +37,10 @@ Some automations below will be based on these times.  No-one will mind if you ma
   (for example, the you will probably want to create some `last-known-good` branches)
 4. [ ] be prepared to use these steps at the time you promised
 5. [ ] make sure this plan will take less than half an hour to run
+6. [ ] check all TODO items in this issue have been completed
 
 ```bash
-# For example:
+# Example steps to revert:
 SLEEPDIARY_ROOT=/path/to/sleepdiary
 PUSH_LOCATION=safe-personal # while testing
 #PUSH_LOCATION=unsafe-canonical # in practice
@@ -50,25 +51,32 @@ done
 
 ## Procedure
 
+### Common preparation actions
+
 1. [ ] check [the maintenance times](https://github.com/sleepdiary/planned-maintenance-times/edit/main/index.js) match the summary
-2. [ ] check the current time (GMT) is within the window mentioned at the top of this issue
-3. [ ] open the following browser tabs (TODO: add links):
+2. [ ] open the following browser tabs (TODO: add links):
   - [sleepdiary.github.io](https://sleepdiary.github.io/)
   - [sleepdiary.github.io/dashboard](https://sleepdiary.github.io/dashboard)
-  - [your notifications page](https://github.com/notifications)
   - [the list of Sleep Diary repositories](https://github.com/orgs/sleepdiary/repositories)
-  - the "code" and "actions" pages for every relevant repository
+  - the page for any workflows you will need to run
+  - the "code" page for every relevant repository
+  - [your notifications page](https://github.com/notifications)
   - [the forum](https://github.com/sleepdiary/sleepdiary.github.io/discussions)
-  - any tabs necessary to talk with other maintainers
   - a search engine
-4. [ ] check all TODO items in this issue have been completed, and all items before this one have been ticked off
-5. [ ] push new branches called `last-known-good` to any relevant repositories
-6. [ ] push new branches named after this issue to any relevant repositories
+  - any tabs necessary to talk with other maintainers
+3. [ ] check the last run succeeded for each workflow you will run
+3. [ ] check all items before this one have been ticked off
+4. [ ] check the current time (GMT) is within the window mentioned at the top of this issue
+5. [ ] [manually generate a notice](https://github.com/andrew-sayers/internal-tools/actions/workflows/maintenance-timer.yml)
+6. [ ] push new branches called `last-known-good` to any relevant repositories
+7. [ ] push new branches named after this issue to any relevant repositories
   (the branch names must begin with `maint-` so the [planned-maintenance action](https://github.com/andrew-sayers/planned-maintenance) knows what to do)
-7. [ ] create pull requests for each branch
+8. [ ] create pull requests for each branch
   - the pull requests should reference this issue
   - the merge commit bodies should reference this issue
   - the merge commit titles should be something like "Initial merge for *issue*"
+
+### Actions specific to this issue
 
 TODO: Fill in the details here for this maintenance.  Make sure to include:
 
@@ -76,7 +84,20 @@ TODO: Fill in the details here for this maintenance.  Make sure to include:
 - things to monitor (e.g. web sites, actions)
 - tests to perform after the maintenance is complete
 
-1. [ ] push a final merge to each repository, including all pushed commits during the maintenance window
+### Common clear-up actions
+
+1. [ ] make sure various parts of the project still work
+  - [sleepdiary.github.io](https://sleepdiary.github.io/)
+  - [sleepdiary.github.io/dashboard](https://sleepdiary.github.io/dashboard)
+  - the dev server
+    - `docker pull docker.io/sleepdiaryproject/dev-server:latest`
+    - `docker run --rm -v /path/to/sleepdiary:/app -d -p 8080-8090:8080-8090 --name sleepdiary-dev-server sleepdiaryproject/dev-server`
+    - look around [localhost:8080](http://localhost:8080)
+2. [ ] stop the maintenance timer
+   - go to [the action page](https://github.com/andrew-sayers/internal-tools/actions/workflows/maintenance-timer.yml)
+   - click the grey <tt>…</tt> button to the right of *Filter workflow runs*
+   - click *Disable workflow*
+2. [ ] push a final merge to each repository, including all commits pushed during the maintenance window
   - do this even if there were no extra changes after the first PR - the extra PR confirms the lack of changes to anyone reviewing the commit history
   - example commands:
     ```bash
@@ -86,11 +107,11 @@ TODO: Fill in the details here for this maintenance.  Make sure to include:
     git merge --no-ff origin/main -m "Merge branch '$MAINTENANCE_BRANCH' into main"
     git push unsafe-canonical main
     ```
-2. [ ] delete all the `last-known-good` branches created earlier
-3. [ ] delete any PR branches created earlier
-4. [ ] add a comment to this issue, stating whether the maintenance was successful, and what happened if not
-5. [ ] update [the maintenance times](https://github.com/sleepdiary/planned-maintenance-times/edit/main/index.js) and set the end of the maintenance window
-6. [ ] add a comment to any waiting branches that it's now safe to merge
+3. [ ] delete all the `last-known-good` branches created earlier
+4. [ ] delete any PR branches created earlier
+5. [ ] add a comment to this issue, stating whether the maintenance was successful, and what happened if not
+6. [ ] update [the maintenance times](https://github.com/sleepdiary/planned-maintenance-times/edit/main/index.js) and set the end of the maintenance window
+7. [ ] add a comment to any waiting branches that it's now safe to merge
 
 ## Review and process improvements
 
@@ -99,3 +120,4 @@ TODO: Fill in the details here for this maintenance.  Make sure to include:
 3. [ ] compile a list of things that went well, and ways to bake them into the process for the future
 4. [ ] compile a list of things that went badly (or could have gone badly), and ways to improve the system to avoid them in future
 5. [ ] implement as many improvements as possible
+  - reference this issue in all relevant PRs

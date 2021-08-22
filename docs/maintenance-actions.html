@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/@mdi/font@latest/css/materialdesignicons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+</head>
+<body>
+  <div id="app">
+    <v-app>
+      <v-main>
+        <template v-if="error">
+          Please fix the following error(s):
+          <pre>{{error}}</pre>
+        </template>
+        <v-stepper v-else v-model="step_no" style="margin-bottom:64px" vertical>
+          <div
+            v-for="(action,n) in actions"
+            :key="n"
+            >
+
+            <v-stepper-step
+              :complete="step_no > n"
+              :step="n"
+              editable
+              >
+              <template v-if="action.type == 'setup'">
+                Setup
+              </template>
+
+              <template v-else-if="action.type == 'check_sites'">
+                <template v-if="action.title">
+                  {{action.title}}
+                </template>
+                <template v-else-if="action.sites.length == 1">
+                  Check one site
+                </template>
+                <template v-else>
+                  Check {{action.prs.length}} sites
+                </template>
+              </template>
+
+              <template v-else-if="action.type == 'accept_prs'">
+                <template v-if="action.title">
+                  {{action.title}}
+                </template>
+                <template v-else-if="action.workflows.length == 1">
+                  Accept one PR
+                </template>
+                <template v-else>
+                  Accept {{action.prs.length}} PRs
+                </template>
+              </template>
+
+              <template v-else-if="action.type == 'run_workflows'">
+                <template v-if="action.title">
+                  {{action.title}}
+                </template>
+                <template v-else-if="action.workflows.length == 1">
+                  Run one workflow
+                </template>
+                <template v-else>
+                  Run {{action.workflows.length}} workflows
+                </template>
+              </template>
+
+              <template v-else-if="action.type == 'teardown'">
+                Teardown
+              </template>
+
+              <template v-else>
+                <strong>ERROR: invalid action - fix this before running the workflow</strong><br>
+                {{action}}
+              </template>
+
+            </v-stepper-step>
+
+            <v-stepper-content
+              :step="n"
+              >
+
+              <template v-if="action.type == 'setup'">
+                <h2>Create personal access token</h2>
+                <p>Create a Personal Access Token so this page can run actions automatically.</p>
+                <ol>
+                  <li>
+                    <a href="https://github.com/settings/tokens/new">Create a new token</a>
+                    <ul>
+                      <li>Set the <em>Note</em> to the URL of the maintenance issue</li>
+                      <li>Set the <em>Expiration</em> to the shortest available time</li>
+                      <li>Select the <em>repo</em> and <em>workflow</em> scopes</li>
+                      <li>Click <em>Generate token</em> at the bottom of the page</li>
+                    </ul>
+                  </li>
+                  <li>
+                    <v-text-field
+                      type="text"
+                      label="Type your username in here"
+                      v-model="username"
+                      >
+                    </v-text-field>
+                  </li>
+                  <li>
+                    <v-text-field
+                      :append-icon="show_pat ? 'mdi-eye' : 'mdi-eye-off'"
+                      :type="show_pat ? 'text' : 'password'"
+                      label="Paste the token in here"
+                      v-model="pat"
+                      @click:append="show_pat = !show_pat"
+                      >
+                    </v-text-field>
+                  </li>
+                </ol>
+              </template>
+
+              <template v-else-if="action.type == 'check_sites'">
+                <v-simple-table>
+                  <template v-slot:default>
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th>Comment</th>
+                        <th>Link</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        v-for="(site,n) in action.sites"
+                        :key="n"
+                        >
+                        <td>{{site.title}}</td>
+                        <td>{{site.comment}}</td>
+                        <td><a :href="site.url">{{site.url}}</a></td>
+                      </tr>
+                    </tbody>
+                  </template>
+                </v-simple-table>
+              </template>
+
+              <template v-else-if="action.type == 'accept_prs'">
+                <v-simple-table>
+                  <template v-slot:default>
+                    <thead>
+                      <tr>
+                        <th>Pull Request</th>
+                        <th>Last updated</th>
+                        <th>Status</th>
+                        <th>Link</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        v-for="(pr,n) in action.prs"
+                        :key="n"
+                        >
+                        <td>{{pr.owner}} &gt; {{pr.repo}} &gt; {{(pr.data||{title:pr.id}).title}}</td>
+                        <td>
+                          <template v-if="pr.data">{{time_ago(pr.data.updated_at)}}</template>
+                          <template v-else>(loading)</template>
+                        </td>
+                        <td>{{pr_status(pr)}}</td>
+                        <td><a v-if="pr.data" :href="pr.data.html_url">{{pr.id}}</a></td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <v-btn
+                            :disabled="status!='window-open'"
+                            :dark="status=='window-open'"
+                            @click="run_prs(action)"
+                            color="green"
+                            >
+                            Merge
+                          </v-btn>
+                        </td>
+                        <td colspan="3" v-if="status=='window-open'">
+                          To undo, go to the page above and click the button near the bottom marked <em>revert</em>.
+                        </td>
+                        <td colspan="3" v-else>
+                          (will be enabled when the window opens)
+                        </td>
+                      </tr>
+                  </tbody>
+                  </template>
+                </v-simple-table>
+              </template>
+
+              <template v-else-if="action.type == 'run_workflows'">
+
+                <v-simple-table>
+                  <template v-slot:default>
+                    <thead>
+                      <tr>
+                        <th>Workflow</th>
+                        <th>Last updated</th>
+                        <th>Status</th>
+                        <th>Link</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        v-for="(workflow,n) in action.workflows"
+                        :key="n"
+                        >
+                        <td>{{workflow.owner}} &gt; {{workflow.repo}} &gt; {{(workflow.data||{name:workflow.id}).name}}</td>
+                        <td>
+                          <template v-if="workflow.data">{{time_ago(workflow.data.updated_at)}}</template>
+                          <template v-else>(loading)</template>
+                        </td>
+                        <td>{{(workflow.data||{}).status == 'completed' ? workflow.data.conclusion : (workflow.data||{status:"loading"}).status}}</td>
+                        <td><a :href="`https://github.com/${workflow.owner}/${workflow.repo}/actions/workflows/${workflow.id}`">{{workflow.id}}</a></td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <v-btn
+                            :disabled="status!='window-open'"
+                            :dark="status=='window-open'"
+                            @click="run_workflows(action)"
+                            color="green"
+                            >
+                            <template v-if="action.workflows.length == 1">
+                              Run one workflow
+                            </template>
+                            <template v-else>
+                              Run {{action.workflows.length}} workflows
+                            </template>
+                          </v-btn>
+                        </td>
+                        <td colspan="3" v-if="status=='window-open'">
+                          To undo, revert any associated changes then re-run.
+                        </td>
+                        <td colspan="3" v-else>
+                          (will be enabled when the window opens)
+                        </td>
+                      </tr>
+                  </tbody>
+                  </template>
+                </v-simple-table>
+
+              </template>
+
+              <template v-else-if="action.type == 'teardown'">
+
+                <h2>Delete personal access token</h2>
+                <p>This page&rsquo;s token should no longer be needed.</p>
+                <ol>
+                  <li><a href="https://github.com/settings/tokens">Go to your tokens page</a></li>
+                  <li>Click <em>Delete</em> for the token with the URL of the maintenance issue</li>
+                </ol>
+              </template>
+
+              <template v-else>
+                <strong>ERROR: invalid action - fix this before running the workflow</strong><br>
+                {{action}}
+              </template>
+
+            </v-stepper-content>
+          </div>
+
+        </v-stepper>
+
+        <v-app-bar
+          :color="status_colour"
+          style="position:fixed;bottom:0"
+          >
+          <v-btn
+            :disabled="step_no == 0"
+            color="primary"
+            @click="--step_no"
+            style="float:left"
+            >
+            <v-icon>mdi-arrow-left</v-icon>
+            Prev
+          </v-btn>
+          <v-spacer></v-spacer>
+          <span v-html="status_message"></span>
+          <v-spacer></v-spacer>
+          <v-btn
+            :disabled="step_no == actions.length-1"
+            color="primary"
+            @click="++step_no"
+            style="float:right"
+            >
+            Next
+            <v-icon>mdi-arrow-right</v-icon>
+          </v-btn>
+        </v-app-bar>
+
+      </v-main>
+    </v-app>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/moment@2.x/min/moment.min.js" integrity="sha256-c95CVJWVMOTR2b7FhjeRhPlrSVPaz5zV5eK917/s7vc=" crossorigin="anonymous"></script>
+  <script>
+    let maintenance_data;
+    function handle_data(data) {
+        maintenance_data = data;
+    }
+  </script>
+  <script src="https://sleepdiary.github.io/planned-maintenance-times/index.js"></script>
+  <script>
+
+    new Vue({
+      el: '#app',
+      vuetify: new Vuetify(),
+        data: () => ({
+
+            start: new Date( maintenance_data["maintenance-window-start"] ).getTime(),
+            end  : new Date( maintenance_data["maintenance-window-end"  ] ).getTime(),
+
+            status: '',
+            time_to_next_event: 0,
+
+            username: sessionStorage.getItem('username')||'',
+            pat: sessionStorage.getItem('pat')||'',
+            show_pat: !sessionStorage.getItem('pat'),
+
+            step_no: parseInt(sessionStorage.getItem('step_no')||'0',10)||0,
+            actions: [].concat(
+                [{ "type": "setup" }],
+                maintenance_data["maintenance-actions"],
+                { "type": "teardown" },
+            ),
+            error: '',
+
+            callbacks: [],
+            callback_id: 0,
+            cached_time_ago: {},
+
+        }),
+        mounted() {
+            this.update();
+            this.actions.forEach(
+                action => {
+                    switch ( action.type ) {
+                    case "setup":
+                    case "teardown":
+                    case "check_sites":
+                        break;
+                    case "accept_prs":
+                        action.prs.forEach(
+                            pr => this.github_api_get(
+                                `/repos/${pr.owner}/${pr.repo}/pulls/${pr.id}`
+                            ).then( data => pr.data = data )
+                        );
+                        break;
+                    case "run_workflows":
+                        action.workflows.forEach(
+                            workflow => this.github_api_get(
+                                `/repos/${workflow.owner}/${workflow.repo}/actions/workflows/${workflow.id}/runs`,
+                            )
+                                .then( data => workflow.data = data.workflow_runs[0] )
+                        );
+                        break;
+                    default:
+                        this.error = `Invalid action type: ${JSON.stringify(action)}`;
+                    }
+                });
+            setInterval( () => this.update(), 500 );
+            setInterval(
+                () => {
+                    const cta = this.cached_time_ago, callbacks = this.callbacks;
+                    Object.keys(cta).forEach( time => cta[time] = moment(time).fromNow() );
+                    if ( callbacks.length ) {
+                        callbacks[this.callback_id%callbacks.length]();
+                        ++this.callback_id;
+                    } else {
+                        this.callback_id = 0;
+                    }
+                },
+                2000
+            );
+        },
+
+        methods: {
+            update() {
+                const now = new Date().getTime();
+                if ( now < this.start ) {
+                    this.status = "before-start";
+                    this.time_to_next_event = ( this.start - now ) / 1000;
+                } else if ( now < this.end ) {
+                    this.status = "window-open";
+                    this.time_to_next_event = ( this.end - now ) / 1000;
+                } else {
+                    this.status = "window-closed";
+                }
+            },
+            time_ago(time) {
+                return (
+                    this.cached_time_ago[time]
+                        ? this.cached_time_ago[time]
+                        : this.cached_time_ago[time] = moment(time).fromNow()
+                );
+            },
+            pr_status(pr) {
+                if ( pr.merge_result ) return pr.merge_result;
+                if ( !pr.data ) return '(loading)';
+                return ( pr.data.mergeable ? 'mergeable' : 'CONFLICT!' );
+            },
+
+            /*
+             * API-related
+             */
+            github_api_get(url,cache) {
+                return (
+                    fetch(`https://api.github.com${url}`, {
+                        headers: this.github_headers,
+                        cache: cache||'default'
+                    })
+                        .then( response => response.json() )
+                        .catch( error => this.error = `https://api.github.com${url}: ${error}` )
+                );
+            },
+            run_prs(action) {
+                action.prs.forEach(
+                    pr => fetch(
+                        `https://api.github.com/repos/${pr.owner}/${pr.repo}/pulls/${pr.id}/merge`,
+                        {
+                            headers: this.github_headers,
+                            method: "PUT",
+                            body: '{}'
+                        }
+                    )
+                        .then( () => pr.merge_result = "merged" )
+                        .catch( error => pr.merge_result = error )
+                );
+            },
+            run_workflows(action) {
+                action.workflows.forEach(
+                    workflow => this.github_api_get(
+                        `/repos/${workflow.owner}/${workflow.repo}/actions/workflows/${workflow.id}/runs`,
+                        'no-cache'
+                    )
+                        .then( data => {
+                            workflow.data = data.workflow_runs[0];
+                            const runs = data.workflow_runs.length,
+                                  callback = () => {
+                                      this.github_api_get(
+                                          `/repos/${workflow.owner}/${workflow.repo}/actions/workflows/${workflow.id}/runs`,
+                                          'no-cache'
+                                      ).then( data => {
+                                          workflow.data = data.workflow_runs[0];
+                                          if ( data.workflow_runs.length > runs && data.workflow_runs[0].status == "completed" ) {
+                                              this.callbacks = this.callbacks.filter( cb => cb != callback );
+                                          }
+                                      })
+                                  };
+                            fetch(
+                                `https://api.github.com/repos/${workflow.owner}/${workflow.repo}/actions/workflows/${workflow.id}/dispatches`,
+                                {
+                                    headers: this.github_headers,
+                                    method: "POST",
+                                    body: JSON.stringify({"ref":workflow.ref||"main"}),
+                                }
+                            )
+                                .catch( error => this.error = `https://api.github.com${url}: ${error}` )
+                                .then( () => this.callbacks.push(callback) );
+
+                        })
+                );
+            },
+        },
+
+        computed: {
+            status_colour() {
+                switch ( this.status ) {
+                case 'before-start': return 'yellow';
+                case 'window-open' : return 'green';
+                case 'window-closed': return 'red';
+                default: 'blue-grey'
+                }
+            },
+            status_message() {
+                const clock_text = (
+                    [
+                        Math.floor( this.time_to_next_event / (60*60), ),
+                        Math.floor( this.time_to_next_event / 60, ) % 60,
+                        Math.floor( this.time_to_next_event ) % 60,
+                    ].map( t => ( t < 10 ? '0' : '' ) + t )
+                        .join(':')
+                );
+                switch ( this.status ) {
+                case 'before-start': return 'Maintenance window will open in ' + clock_text;
+                case 'window-open' : return 'Maintenance window open!  Will close in ' + clock_text;
+                case 'window-closed': return 'Maintenance window closed.';
+                default: return `Maintenance countdown.  To use this page, create a URL like: <tt>${location.href.replace(/#.*/,'')}#start=&lt;start-time&gt;&amp;end=&lt;end_time&gt;</tt>`;
+                }
+            },
+            github_headers() {
+                const headers = {
+                    'Content-Type': 'Accept: application/vnd.github.v3+json',
+                };
+                if ( this.username && this.pat ) {
+                    headers.Authorization = 'Basic ' + btoa(this.username + ":" + this.pat);
+                }
+                return headers;
+            }
+        },
+
+        watch: {
+            pat() {
+                sessionStorage.setItem('pat',this.pat);
+            },
+            username() {
+                sessionStorage.setItem('username',this.username);
+            },
+            step_no() {
+                sessionStorage.setItem('step_no',this.step_no);
+            },
+        },
+
+    })
+  </script>
+</body>
+</html>
