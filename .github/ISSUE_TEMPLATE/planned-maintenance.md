@@ -67,7 +67,7 @@ done
 3. [ ] check the last run succeeded for each workflow you will run
 3. [ ] check all items before this one have been ticked off
 4. [ ] check the current time (GMT) is within the window mentioned at the top of this issue
-5. [ ] [manually generate a notice](https://github.com/andrew-sayers/internal-tools/actions/workflows/maintenance-timer.yml)
+5. [ ] [manually generate a notice](https://github.com/sleepdiary/internal-tools/actions/workflows/maintenance-timer.yml)
 6. [ ] push new branches called `last-known-good` to any relevant repositories
 7. [ ] push new branches named after this issue to any relevant repositories
   (the branch names must begin with `maint-` so the [planned-maintenance action](https://github.com/andrew-sayers/planned-maintenance) knows what to do)
@@ -94,7 +94,7 @@ TODO: Fill in the details here for this maintenance.  Make sure to include:
     - `docker run --rm -v /path/to/sleepdiary:/app -d -p 8080-8090:8080-8090 --name sleepdiary-dev-server sleepdiaryproject/dev-server`
     - look around [localhost:8080](http://localhost:8080)
 2. [ ] stop the maintenance timer
-   - go to [the action page](https://github.com/andrew-sayers/internal-tools/actions/workflows/maintenance-timer.yml)
+   - go to [the action page](https://github.com/sleepdiary/internal-tools/actions/workflows/maintenance-timer.yml)
    - click the grey <tt>…</tt> button to the right of *Filter workflow runs*
    - click *Disable workflow*
 2. [ ] push a final merge to each repository, including all commits pushed during the maintenance window
