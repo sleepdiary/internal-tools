@@ -15,11 +15,13 @@
           Please fix the following error(s):
           <pre>{{error}}</pre>
         </template>
-        <v-stepper v-model="step_no" style="margin-bottom:64px" v-else>
-          <v-stepper-header>
+        <v-stepper v-else v-model="step_no" style="margin-bottom:64px" vertical>
+          <div
+            v-for="(action,n) in actions"
+            :key="n"
+            >
+
             <v-stepper-step
-              v-for="(action,n) in actions"
-              :key="n"
               :complete="step_no > n"
               :step="n"
               editable
@@ -28,8 +30,28 @@
                 Setup
               </template>
 
+              <template v-else-if="action.type == 'check_sites'">
+                <template v-if="action.title">
+                  {{action.title}}
+                </template>
+                <template v-else-if="action.sites.length == 1">
+                  Check one site
+                </template>
+                <template v-else>
+                  Check {{action.prs.length}} sites
+                </template>
+              </template>
+
               <template v-else-if="action.type == 'accept_prs'">
-                Accept PRs
+                <template v-if="action.title">
+                  {{action.title}}
+                </template>
+                <template v-else-if="action.workflows.length == 1">
+                  Accept one PR
+                </template>
+                <template v-else>
+                  Accept {{action.prs.length}} PRs
+                </template>
               </template>
 
               <template v-else-if="action.type == 'run_workflows'">
@@ -54,12 +76,8 @@
               </template>
 
             </v-stepper-step>
-          </v-stepper-header>
 
-          <v-stepper-items>
             <v-stepper-content
-              v-for="(action,n) in actions"
-              :key="n"
               :step="n"
               >
 
@@ -97,6 +115,30 @@
                 </ol>
               </template>
 
+              <template v-else-if="action.type == 'check_sites'">
+                <v-simple-table>
+                  <template v-slot:default>
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th>Comment</th>
+                        <th>Link</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        v-for="(site,n) in action.sites"
+                        :key="n"
+                        >
+                        <td>{{site.title}}</td>
+                        <td>{{site.comment}}</td>
+                        <td><a :href="site.url">{{site.url}}</a></td>
+                      </tr>
+                    </tbody>
+                  </template>
+                </v-simple-table>
+              </template>
+
               <template v-else-if="action.type == 'accept_prs'">
                 <v-simple-table>
                   <template v-slot:default>
@@ -119,7 +161,7 @@
                           <template v-else>(loading)</template>
                         </td>
                         <td>{{pr_status(pr)}}</td>
-                        <th><a v-if="pr.data" :href="pr.data.html_url">{{pr.id}}</a></td>
+                        <td><a v-if="pr.data" :href="pr.data.html_url">{{pr.id}}</a></td>
                       </tr>
                       <tr>
                         <td>
@@ -136,7 +178,7 @@
                           To undo, go to the page above and click the button near the bottom marked <em>revert</em>.
                         </td>
                         <td colspan="3" v-else>
-                          (will be enabled when the window is open)
+                          (will be enabled when the window opens)
                         </td>
                       </tr>
                   </tbody>
@@ -167,7 +209,7 @@
                           <template v-else>(loading)</template>
                         </td>
                         <td>{{(workflow.data||{}).status == 'completed' ? workflow.data.conclusion : (workflow.data||{status:"loading"}).status}}</td>
-                        <th><a :href="`https://github.com/${workflow.owner}/${workflow.repo}/actions/workflows/${workflow.id}`">{{workflow.id}}</a></td>
+                        <td><a :href="`https://github.com/${workflow.owner}/${workflow.repo}/actions/workflows/${workflow.id}`">{{workflow.id}}</a></td>
                       </tr>
                       <tr>
                         <td>
@@ -189,7 +231,7 @@
                           To undo, revert any associated changes then re-run.
                         </td>
                         <td colspan="3" v-else>
-                          (will be enabled when the window is open)
+                          (will be enabled when the window opens)
                         </td>
                       </tr>
                   </tbody>
@@ -214,7 +256,7 @@
               </template>
 
             </v-stepper-content>
-          </v-stepper-items>
+          </div>
 
         </v-stepper>
 
@@ -271,7 +313,6 @@
 
             status: '',
             time_to_next_event: 0,
-            interval: null,
 
             username: sessionStorage.getItem('username')||'',
             pat: sessionStorage.getItem('pat')||'',
@@ -297,6 +338,7 @@
                     switch ( action.type ) {
                     case "setup":
                     case "teardown":
+                    case "check_sites":
                         break;
                     case "accept_prs":
                         action.prs.forEach(
@@ -317,6 +359,7 @@
                         this.error = `Invalid action type: ${JSON.stringify(action)}`;
                     }
                 });
+            setInterval( () => this.update(), 500 );
             setInterval(
                 () => {
                     const cta = this.cached_time_ago, callbacks = this.callbacks;
