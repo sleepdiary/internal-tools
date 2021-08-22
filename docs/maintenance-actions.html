@@ -316,6 +316,7 @@
                         this.error = `Invalid action type: ${JSON.stringify(action)}`;
                     }
                 });
+            setInterval( () => this.update(), 500 );
             setInterval(
                 () => {
                     const cta = this.cached_time_ago, callbacks = this.callbacks;
