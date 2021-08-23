@@ -22,14 +22,19 @@ case "$1" in
         ;;
 
     upgrade)
+
+        # Upgrade ttyd:
         curl --silent -D - https://github.com/tsl0922/ttyd/releases/latest \
             | sed -n -e 's/\r//' -e 's/^[Ll]ocation:.*\/tag\///p' \
             > ttyd-version.txt \
             || exit 2
+
+        # Upgrade github-markdown-css:
         curl --silent -D - https://github.com/sindresorhus/github-markdown-css/releases/latest \
             | sed -n -e 's/\r//' -e 's/^[Ll]ocation:.*\/tag\///p' \
             > github-markdown-css-version.txt \
             || exit 2
+
         ;;
 
     *)

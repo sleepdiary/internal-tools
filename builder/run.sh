@@ -22,6 +22,8 @@ case "$1" in
         ;;
 
     upgrade)
+
+        # Update Node itself:
         curl --silent https://nodejs.org/dist/index.json \
             | sed -ne '/"version"/ { s/{"version":"v\([0-9]*\).*/\1/p ; q }' \
             > node-version.txt \
