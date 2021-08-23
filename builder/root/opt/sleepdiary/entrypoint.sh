@@ -53,6 +53,8 @@ if ! git rev-parse --verify "$MAIN" 2>/dev/null
 then MAIN=origin/main
 fi
 
+PATH="/opt/sleepdiary/bin:$PATH"
+
 run_tests() {
 
     ./bin/run.sh build

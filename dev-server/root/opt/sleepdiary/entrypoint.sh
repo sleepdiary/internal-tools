@@ -3,7 +3,7 @@
 # the scrollback=0 below currently does nothing useful,
 # but in future will hopefully disable the scrollbar:
 # https://github.com/xtermjs/xterm.js/pull/3398/commits/dab73aa26355d8897968bffe3fc3366c2ca80a28
-start-stop-daemon \
+/sbin/start-stop-daemon \
     --chdir /app \
     --start \
     --background \
@@ -15,7 +15,7 @@ start-stop-daemon \
     -t 'theme={"foreground":"black","background":"white"}' \
     tmux attach -tconsole
 
-start-stop-daemon \
+/sbin/start-stop-daemon \
     --chdir /app \
     --start \
     --background \
@@ -30,7 +30,7 @@ start-stop-daemon \
 
 /etc/init.d/nginx start
 
-start-stop-daemon \
+/sbin/start-stop-daemon \
     --chdir /opt/sleepdiary \
     --start \
     --background \

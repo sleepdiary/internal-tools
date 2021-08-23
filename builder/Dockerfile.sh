@@ -30,7 +30,8 @@ APT_PACKAGES="$APT_PACKAGES"
 cat <<EOF
 FROM node:$NODE_VERSION
 RUN true \\
-&& mkdir -p /opt/sleepdiary \\
+&& mkdir -p /opt/sleepdiary/bin \\
+&& echo PATH="/opt/sleepdiary/bin:$PATH" > /etc/profile.d/fix_path.sh \\
 EOF
 
 # JSDoc timestamps all documents.  To generate a repeatable build, we need a fake timestamp.
@@ -71,6 +72,7 @@ footer
 
 cat <<EOF
 COPY root /
-RUN chmod 755 /opt/sleepdiary/*.sh
+RUN chmod 755 /opt/sleepdiary/*.sh /opt/sleepdiary/bin/*
+ENV PATH="/opt/sleepdiary/bin:${PATH}"
 WORKDIR /app
 EOF
