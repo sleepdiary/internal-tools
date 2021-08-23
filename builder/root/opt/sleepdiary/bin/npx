@@ -1,0 +1,9 @@
+#!/bin/sh
+#
+# `npx` returns 1 on error, which is often treated as WARNING rather than ERROR.
+# We convert that to a 2
+
+/usr/local/bin/npx "$@"
+RESULT="$?"
+[ "$RESULT" = 1 ] && exit 2
+exit "$RESULT"
