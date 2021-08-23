@@ -44,6 +44,7 @@ run_merge() {
         echo "$LOG_COMMAND"
         $LOG_COMMAND
         echo
+        [ -e .git/MERGE_HEAD ] && git merge --abort
         return 2
     fi
 }
@@ -90,7 +91,6 @@ run_tests() {
         git checkout --quiet built
         run_merge "$MAIN" --no-commit
         RESULT="$?"
-        [ -e .git/MERGE_HEAD ] && git merge --abort
         git checkout --quiet "$MAIN"
 
     elif [ "$(cat .git/HEAD )" = "ref: refs/heads/built" ]
@@ -99,7 +99,6 @@ run_tests() {
         echo
         run_merge "$MAIN" --no-commit
         RESULT="$?"
-        [ -e .git/MERGE_HEAD ] && git merge --abort
 
     else
 
