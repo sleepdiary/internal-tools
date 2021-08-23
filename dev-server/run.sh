@@ -2,6 +2,8 @@
 #
 # Builds the container used by other projects
 
+set -e
+
 case "$1" in
 
     test)

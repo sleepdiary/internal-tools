@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 . ../utils/Dockerfile-utils.sh
 
 # Node releases: https://nodejs.org/en/about/releases/
