@@ -15,7 +15,10 @@ case "$1" in
         ;;
 
     build-local)
-        ./Dockerfile.sh | docker build --tag sleepdiaryproject/dev-server -f - .
+        DOCKERFILE="$( ./Dockerfile.sh )"
+        RESULT="$?"
+        [ "$RESULT" = 0 ] || exit "$RESULT"
+        echo "$DOCKERFILE" | docker build --tag sleepdiaryproject/dev-server -f - .
         ;;
 
     upgrade)
