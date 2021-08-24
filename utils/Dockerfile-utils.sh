@@ -1,17 +1,19 @@
 # Utilities used by Dockerfile.sh
 
-NPM_PACKAGES=
 APT_PACKAGES=
 
-install_npm_packages() {
+# Install an npm program we will use from the command-line
+# `npm install --global` makes the specified package runnable,
+# but hides its dependencies in a separate directory
+install_npm_programs() {
     if echo "$@" | grep -q '[^ ]'
     then cat <<EOF
  \\
+&& echo "Installing npm programs: $@" \\
 && npm install --production -g $@ \\
-&& npm cache clean --force \\
 EOF
     fi
-    }
+}
 
 install_apt_packages() {
     if echo "$@" | grep -q '[^ ]'
@@ -28,6 +30,7 @@ EOF
 footer() {
     cat <<EOF
  \\
+&& npm cache clean --force \\
 && echo Install succeeded
 
 ENTRYPOINT [ "/opt/sleepdiary/entrypoint.sh" ]
