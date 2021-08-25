@@ -85,6 +85,24 @@
                 </template>
               </template>
 
+              <template v-else-if="action.type == 'create_comments'">
+                <template v-if="action.title">
+                  {{action.title}}
+                  <small v-if="action.comments.length == 1">
+                    Add one comment
+                  </small>
+                  <small v-else>
+                    Run {{action.comments.length}} comments
+                  </small>
+                </template>
+                <template v-else-if="action.comments.length == 1">
+                  Add one comment
+                </template>
+                <template v-else>
+                  Add {{action.comments.length}} comments
+                </template>
+              </template>
+
               <template v-else-if="action.type == 'teardown'">
                 Teardown
                 <small>Undo setup actions</small>
@@ -388,6 +406,64 @@
 
               </template>
 
+              <template v-else-if="action.type == 'create_comments'">
+
+                <v-form
+                  v-for="(comment,n) in action.comments"
+                  :key="n"
+                  >
+                  <div
+                    v-for="(field,n) in comment.fields"
+                    :key="n"
+                    >
+                    <v-switch
+                      v-if="field.type=='switch'"
+                      v-model="field.value"
+                      :label="`${field.label}: ${field.value?field.on:field.off}`"
+                      >
+                    </v-switch>
+                    <v-textarea
+                      v-else-if="field.type=='textarea'"
+                      v-model="field.value"
+                      :label="field.label"
+                      >
+                    </v-textarea>
+                    <template v-else>
+                      <strong>ERROR: invalid field - fix this before running the workflow</strong><br>
+                      {{field}}
+                    </template>
+                  </div>
+                </v-form>
+
+                <v-simple-table>
+                  <template v-slot:default>
+                    <tbody>
+                      <tr>
+                        <td>
+                          <v-btn
+                            :disabled="status!='window-open'"
+                            :dark="status=='window-open'"
+                            @click="create_comments(action)"
+                            color="green"
+                            >
+                            <template v-if="action.comments.length == 1">
+                              Create one comment
+                            </template>
+                            <template v-else>
+                              Create {{action.workflows.length}} comments
+                            </template>
+                          </v-btn>
+                        </td>
+                        <td v-if="status!='window-open'">
+                          (will be enabled when the window opens)
+                        </td>
+                      </tr>
+                  </tbody>
+                  </template>
+                </v-simple-table>
+
+              </template>
+
               <template v-else-if="action.type == 'teardown'">
 
                 <h2>Delete personal access token</h2>
@@ -457,6 +533,7 @@
         data: () => ({
 
             maintenance_url: maintenance_data["maintenance-url"],
+            default_issue_id: maintenance_data["maintenance-url"].replace( /.*\/issues\/([0-9]+).*/, "$1" ),
 
             start: new Date( maintenance_data["maintenance-window-start"] ).getTime(),
             end  : new Date( maintenance_data["maintenance-window-end"  ] ).getTime(),
@@ -489,6 +566,7 @@
                     case "setup":
                     case "teardown":
                     case "check_sites":
+                    case "create_comments":
                         break;
                     case "accept_prs":
                         action.prs.forEach(
@@ -617,6 +695,28 @@
                             )
                                 .then( () => this.callbacks.push(callback) );
                         })
+                );
+            },
+            create_comments(action) {
+                action.comments.forEach(
+                    comment => this.github_api_post(
+                        `/repos/${comment.owner}/${comment.repo}/issues/${comment.id||this.default_issue_id}/comments`,
+                        {
+                            body: comment.body.replace( /{{(.*?)}}/g, (_,id) => {
+                                for ( let n=0; n!=comment.fields.length; ++n ) {
+                                    const field = comment.fields[n];
+                                    if ( field.id == id ) {
+                                        if ( field.type == "switch" ) {
+                                            return field.value?field.on:field.off
+                                        } else {
+                                            return field.value;
+                                        }
+                                    }
+                                }
+                                return '`(undefined)`';
+                            }),
+                        }
+                    )
                 );
             },
         },
