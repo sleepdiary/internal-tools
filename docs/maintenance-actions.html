@@ -414,6 +414,19 @@
                         .catch( error => this.error = `https://api.github.com${url}: ${error}` )
                 );
             },
+            github_api_post(url,body) {
+                return (
+                    fetch(
+                        `https://api.github.com${url}`,
+                        {
+                            headers: this.github_headers,
+                            method: "POST",
+                            body: JSON.stringify(body),
+                        }
+                    )
+                        .catch( error => this.error = `https://api.github.com${url}: ${error}` )
+                );
+            },
             run_prs(action) {
                 action.prs.forEach(
                     pr => fetch(
@@ -448,17 +461,11 @@
                                           }
                                       })
                                   };
-                            fetch(
-                                `https://api.github.com/repos/${workflow.owner}/${workflow.repo}/actions/workflows/${workflow.id}/dispatches`,
-                                {
-                                    headers: this.github_headers,
-                                    method: "POST",
-                                    body: JSON.stringify({"ref":workflow.ref||"main"}),
-                                }
+                            this.github_api_post(
+                                `/repos/${workflow.owner}/${workflow.repo}/actions/workflows/${workflow.id}/dispatches`,
+                                {"ref":workflow.ref||"main"}
                             )
-                                .catch( error => this.error = `https://api.github.com${url}: ${error}` )
                                 .then( () => this.callbacks.push(callback) );
-
                         })
                 );
             },
