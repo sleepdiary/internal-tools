@@ -28,25 +28,38 @@
               >
               <template v-if="action.type == 'setup'">
                 Setup
+                <small>Prepare your environment</small>
               </template>
 
               <template v-else-if="action.type == 'check_sites'">
                 <template v-if="action.title">
                   {{action.title}}
+                  <small v-if="action.sites.length == 1">
+                    Check one site
+                  </small>
+                  <small v-else>
+                    Check {{action.sites.length}} sites
+                  </small>
                 </template>
                 <template v-else-if="action.sites.length == 1">
                   Check one site
                 </template>
                 <template v-else>
-                  Check {{action.prs.length}} sites
+                  Check {{action.sites.length}} sites
                 </template>
               </template>
 
               <template v-else-if="action.type == 'accept_prs'">
                 <template v-if="action.title">
                   {{action.title}}
+                  <small v-if="action.prs.length == 1">
+                    Accept one PR
+                  </small>
+                  <small v-else>
+                    Accept {{action.prs.length}} PRs
+                  </small>
                 </template>
-                <template v-else-if="action.workflows.length == 1">
+                <template v-else-if="action.prs.length == 1">
                   Accept one PR
                 </template>
                 <template v-else>
@@ -57,6 +70,12 @@
               <template v-else-if="action.type == 'run_workflows'">
                 <template v-if="action.title">
                   {{action.title}}
+                  <small v-if="action.workflows.length == 1">
+                    Run one workflow
+                  </small>
+                  <small v-else>
+                    Run {{action.workflows.length}} workflows
+                  </small>
                 </template>
                 <template v-else-if="action.workflows.length == 1">
                   Run one workflow
@@ -68,11 +87,12 @@
 
               <template v-else-if="action.type == 'teardown'">
                 Teardown
+                <small>Undo setup actions</small>
               </template>
 
               <template v-else>
                 <strong>ERROR: invalid action - fix this before running the workflow</strong><br>
-                {{action}}
+                <small>{{action}}</small>
               </template>
 
             </v-stepper-step>
@@ -113,6 +133,85 @@
                     </v-text-field>
                   </li>
                 </ol>
+                <h2>Health check</h2>
+                <p>Make sure the following are all as expected:</p>
+                <ul>
+                  <li>Workflows:
+                    <ul>
+                      <li
+                        v-for="workflow in workflows"
+                        :key="workflow.id"
+                        >
+                        <template v-if="workflow.data">
+                          <v-chip
+                            v-if="workflow.data.status == 'completed' && workflow.data.conclusion=='success'"
+                            :href="`https://github.com/${workflow.owner}/${workflow.repo}/actions/workflows/${workflow.id}`"
+                            color="green"
+                            label
+                            dark
+                            >
+                            success
+                          </v-chip>
+                          <v-chip
+                            v-else-if="workflow.data.status == 'completed'"
+                            :href="`https://github.com/${workflow.owner}/${workflow.repo}/actions/workflows/${workflow.id}`"
+                            color="red"
+                            dark
+                            >
+                            {{workflow.data.conclusion}}
+                          </v-chip>
+                          <v-chip
+                            v-else
+                            :href="`https://github.com/${workflow.owner}/${workflow.repo}/actions/workflows/${workflow.id}`"
+                            color="yellow"
+                            dark
+                            >
+                            {{workflow.data.status}}
+                          </v-chip>
+                          <a :href="`https://github.com/${workflow.owner}/${workflow.repo}/actions/workflows/${workflow.id}`">{{workflow.data.name}}</a>
+                        </template>
+                        <template v-else>
+                          <v-progress-circular
+                            indeterminate
+                            ></v-progress-circular>
+                          <a :href="`https://github.com/${workflow.owner}/${workflow.repo}/actions/workflows/${workflow.id}`">loading</a>
+                        </template>
+                      </li>
+                    </ul>
+                  </li>
+                  <li>Pull requests:
+                    <ul>
+                      <li
+                        v-for="pr in prs"
+                        :key="pr.id"
+                        >
+                        <v-chip
+                          v-if="pr_status(pr)=='mergeable'"
+                          :href="pr.data.html_url"
+                          color="green"
+                          label
+                          dark
+                          >
+                          mergeable
+                        </v-chip>
+                        <v-progress-circular
+                          v-else-if="pr_status(pr)=='loading'"
+                          indeterminate
+                          ></v-progress-circular>
+                        <v-chip
+                          v-else
+                          :href="pr.data.html_url"
+                          color="red"
+                          dark
+                          >
+                          {{pr_status(pr)}}
+                        </v-chip>
+                        <a v-if="pr.data" :href="pr.data.html_url">{{pr.data.title}}</a>
+                        <template v-else>loading</template>
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
               </template>
 
               <template v-else-if="action.type == 'check_sites'">
@@ -160,7 +259,27 @@
                           <template v-if="pr.data">{{time_ago(pr.data.updated_at)}}</template>
                           <template v-else>(loading)</template>
                         </td>
-                        <td>{{pr_status(pr)}}</td>
+                        <td>
+                          <v-chip
+                            v-if="pr_status(pr)=='mergeable'"
+                            color="green"
+                            label
+                            dark
+                            >
+                            mergeable
+                          </v-chip>
+                          <v-progress-circular
+                            v-else-if="pr_status(pr)=='loading'"
+                            indeterminate
+                            ></v-progress-circular>
+                          <v-chip
+                            v-else
+                            color="red"
+                            dark
+                            >
+                            {{pr_status(pr)}}
+                          </v-chip>
+                        </td>
                         <td><a v-if="pr.data" :href="pr.data.html_url">{{pr.id}}</a></td>
                       </tr>
                       <tr>
@@ -208,7 +327,36 @@
                           <template v-if="workflow.data">{{time_ago(workflow.data.updated_at)}}</template>
                           <template v-else>(loading)</template>
                         </td>
-                        <td>{{(workflow.data||{}).status == 'completed' ? workflow.data.conclusion : (workflow.data||{status:"loading"}).status}}</td>
+                        <td>
+                          <template v-if="workflow.data">
+                            <v-chip
+                              v-if="workflow.data.status == 'completed' && workflow.data.conclusion=='success'"
+                              color="green"
+                              label
+                              dark
+                              >
+                              success
+                            </v-chip>
+                            <v-chip
+                              v-else-if="workflow.data.status == 'completed'"
+                              color="red"
+                              dark
+                              >
+                              {{workflow.data.conclusion}}
+                            </v-chip>
+                            <v-chip
+                              v-else
+                              color="yellow"
+                              dark
+                              >
+                              {{workflow.data.status}}
+                            </v-chip>
+                          </template>
+                          <v-progress-circular
+                            v-else
+                            indeterminate
+                            ></v-progress-circular>
+                        </td>
                         <td><a :href="`https://github.com/${workflow.owner}/${workflow.repo}/actions/workflows/${workflow.id}`">{{workflow.id}}</a></td>
                       </tr>
                       <tr>
@@ -274,7 +422,7 @@
             Prev
           </v-btn>
           <v-spacer></v-spacer>
-          <span v-html="status_message"></span>
+          <a style="color:black" :href="maintenance_url" v-html="status_message"></a>
           <v-spacer></v-spacer>
           <v-btn
             :disabled="step_no == actions.length-1"
@@ -307,6 +455,8 @@
       el: '#app',
       vuetify: new Vuetify(),
         data: () => ({
+
+            maintenance_url: maintenance_data["maintenance-url"],
 
             start: new Date( maintenance_data["maintenance-window-start"] ).getTime(),
             end  : new Date( maintenance_data["maintenance-window-end"  ] ).getTime(),
@@ -397,8 +547,8 @@
             },
             pr_status(pr) {
                 if ( pr.merge_result ) return pr.merge_result;
-                if ( !pr.data ) return '(loading)';
-                return ( pr.data.mergeable ? 'mergeable' : 'CONFLICT!' );
+                if ( !pr.data ) return 'loading';
+                return ( pr.data.mergeable ? 'mergeable' : 'problem' );
             },
 
             /*
@@ -504,7 +654,25 @@
                     headers.Authorization = 'Basic ' + btoa(this.username + ":" + this.pat);
                 }
                 return headers;
-            }
+            },
+            workflows() {
+                const ret = {};
+                this.actions.forEach(
+                    action => (action.workflows||[]).forEach(
+                        workflow => ret[workflow.id] = workflow
+                    )
+                );
+                return Object.values(ret);
+            },
+            prs() {
+                const ret = {};
+                this.actions.forEach(
+                    action => (action.prs||[]).forEach(
+                        pr => ret[pr.id] = pr
+                    )
+                );
+                return Object.values(ret);
+            },
         },
 
         watch: {
