@@ -63,7 +63,7 @@ jobs:
             I'll remind you again tomorrow.
             `);
 
-            } else if ( time_before_start >= 0 ) {
+            } else if ( time_before_start > 0 ) {
 
                 switch ( time_before_start ) {
 
@@ -99,14 +99,6 @@ jobs:
             1. Read through the ticket and start preparing now
             3. [Manually generate a notice](https://github.com/andrew-sayers/internal-tools/actions/workflows/maintenance-timer.yml) when the window opens
                * this ensures the notice is sent on time, even if GitHub Actions is being slow today
-            `);
-                    break;
-                case 0:
-                    send_message(`# Start the maintenance procedure
-
-            The maintenance window is [now open](https://sleepdiary.github.io/internal-tools/maintenance-actions.html#start=${{ steps.settings.outputs.maintenance-window-start }}&end=${{ steps.settings.outputs.maintenance-window-end }}).  Only maintenance-related pull requests are allowed.
-
-            Please follow the procedure described in the first message.
             `);
                     break;
 
