@@ -75,4 +75,37 @@ done
 # Fix socket permissions:
 chmod 666 /opt/sleepdiary/web-ttys/*.sock
 
+for ARG in "$@"
+do
+    case "$ARG" in
+        check)
+            for N in $( seq 1 12 )
+            do
+                if curl --fail --silent --fail-early --max-time 10 \
+                        http://localhost:8080/ \
+                        http://localhost:8080/dashboard/ \
+                        http://localhost:8080/docs/ \
+                        http://localhost:8080/dev-server/ \
+                        > /dev/null
+                then
+                    echo "All sites up - check succeeded"
+                    exit 0
+                fi
+                echo "Some sites could not be downloaded - waiting ($N)"
+                sleep 10
+            done
+            echo "Sites did not come up within the timeout - check failed"
+            exit 2
+            ;;
+        *)
+            cat <<EOF
+Usage: docker run -v /path/to/sleepdiary:/app -d -p 8080-8090:8080-8090 --name sleepdiary-dev-server sleepdiaryproject/dev-server
+
+Runs all the sleepdiary repositories
+EOF
+            exit 0
+            ;;
+    esac
+done
+
 sleep infinity
