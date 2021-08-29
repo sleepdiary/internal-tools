@@ -78,3 +78,13 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/dev-server:pre-release
           labels: ${{ steps.dev_server_meta.outputs.labels }}
+
+  check:
+    name: Check pre-release image works correctly
+    runs-on: ubuntu-latest
+    needs: push_to_registries
+    steps:
+      - name: Check
+        uses: docker://ghcr.io/sleepdiary/dev_server:pre-release
+        with:
+          args: check
