@@ -89,9 +89,6 @@ do
             do
                 echo "Checking sites..."
                 if curl --fail --silent --fail-early --max-time 10 \
-                        http://localhost:8080/ \
-                        http://localhost:8080/dashboard/ \
-                        http://localhost:8080/docs/ \
                         http://localhost:8080/dev-server/ \
                         > /dev/null
                 then
