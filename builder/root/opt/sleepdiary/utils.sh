@@ -55,3 +55,10 @@ generic_tests() {
     return $WARNED
 
 }
+
+for DIR in /opt/sleepdiary/cache/"$( basename -s .git $(git config --get remote.origin.url) )"/*
+do
+    if [ -d "$DIR" ] && ! [ -d "$( basename "$DIR" )" ]
+    then /opt/sleepdiary/install-directory.sh "$DIR" .
+    fi
+done

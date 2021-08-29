@@ -54,7 +54,7 @@ fi
 # * Pulling from NPM is relatively slow on GitHub
 #
 # Our workaround is to install in a temporary directory,
-# then copy that directory into place with `install-directory.sh`
+# then have utils.sh copy that directory into place
 cat <<EOF
  \\
 && for DIR in /opt/sleepdiary/cache/*/ ; do cd "\$DIR"; mkdir node_modules; npm ci || exit 2; done \\
