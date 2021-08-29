@@ -6,6 +6,26 @@
   <link href="https://cdn.jsdelivr.net/npm/@mdi/font@latest/css/materialdesignicons.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+  <style>
+.shake {
+  animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) both;
+  transform: translate3d(0, 0, 0);
+}
+@keyframes shake {
+  10%, 90% {
+    transform: translate3d(-1px, 0, 0);
+  }
+  20%, 80% {
+    transform: translate3d(2px, 0, 0);
+  }
+  30%, 50%, 70% {
+    transform: translate3d(-4px, 0, 0);
+  }
+  40%, 60% {
+    transform: translate3d(4px, 0, 0);
+  }
+}
+  </style>
 </head>
 <body>
   <div id="app">
@@ -85,6 +105,42 @@
                 </template>
               </template>
 
+              <template v-else-if="action.type == 'enable_workflows'">
+                <template v-if="action.title">
+                  {{action.title}}
+                  <small v-if="action.workflows.length == 1">
+                    Enable one workflow
+                  </small>
+                  <small v-else>
+                    Enable {{action.workflows.length}} workflows
+                  </small>
+                </template>
+                <template v-else-if="action.workflows.length == 1">
+                  Enable one workflow
+                </template>
+                <template v-else>
+                  Enable {{action.workflows.length}} workflows
+                </template>
+              </template>
+
+              <template v-else-if="action.type == 'disable_workflows'">
+                <template v-if="action.title">
+                  {{action.title}}
+                  <small v-if="action.workflows.length == 1">
+                    Disable one workflow
+                  </small>
+                  <small v-else>
+                    Disable {{action.workflows.length}} workflows
+                  </small>
+                </template>
+                <template v-else-if="action.workflows.length == 1">
+                  Disable one workflow
+                </template>
+                <template v-else>
+                  Disable {{action.workflows.length}} workflows
+                </template>
+              </template>
+
               <template v-else-if="action.type == 'create_comments'">
                 <template v-if="action.title">
                   {{action.title}}
@@ -92,7 +148,7 @@
                     Add one comment
                   </small>
                   <small v-else>
-                    Run {{action.comments.length}} comments
+                    Add {{action.comments.length}} comments
                   </small>
                 </template>
                 <template v-else-if="action.comments.length == 1">
@@ -100,6 +156,42 @@
                 </template>
                 <template v-else>
                   Add {{action.comments.length}} comments
+                </template>
+              </template>
+
+              <template v-else-if="action.type == 'create_branches'">
+                <template v-if="action.title">
+                  {{action.title}}
+                  <small v-if="action.branches.length == 1">
+                    Create one branch
+                  </small>
+                  <small v-else>
+                    Create {{action.branches.length}} branches
+                  </small>
+                </template>
+                <template v-else-if="action.branches.length == 1">
+                  Create one branch
+                </template>
+                <template v-else>
+                  Create {{action.branches.length}} branches
+                </template>
+              </template>
+
+              <template v-else-if="action.type == 'delete_branches'">
+                <template v-if="action.title">
+                  {{action.title}}
+                  <small v-if="action.branches.length == 1">
+                    Delete one branch
+                  </small>
+                  <small v-else>
+                    Delete {{action.branches.length}} branches
+                  </small>
+                </template>
+                <template v-else-if="action.branches.length == 1">
+                  Delete one branch
+                </template>
+                <template v-else>
+                  Delete {{action.branches.length}} branches
                 </template>
               </template>
 
@@ -134,14 +226,6 @@
                   </li>
                   <li>
                     <v-text-field
-                      type="text"
-                      label="Type your username in here"
-                      v-model="username"
-                      >
-                    </v-text-field>
-                  </li>
-                  <li>
-                    <v-text-field
                       :append-icon="show_pat ? 'mdi-eye' : 'mdi-eye-off'"
                       :type="show_pat ? 'text' : 'password'"
                       label="Paste the token in here"
@@ -150,6 +234,7 @@
                       >
                     </v-text-field>
                   </li>
+                  <li><a href="#page" @click="reload($event)">Refresh this page</a></li>
                 </ol>
                 <h2>Health check</h2>
                 <p>Make sure the following are all as expected:</p>
@@ -249,7 +334,7 @@
                         >
                         <td>{{site.title}}</td>
                         <td>{{site.comment}}</td>
-                        <td><a :href="site.url">{{site.url}}</a></td>
+                        <td><a target="_blank" :href="site.url">{{site.url}}</a></td>
                       </tr>
                     </tbody>
                   </template>
@@ -303,8 +388,8 @@
                       <tr>
                         <td>
                           <v-btn
-                            :disabled="status!='window-open'"
-                            :dark="status=='window-open'"
+                            :disabled="(status!='window-open')||action.disabled"
+                            :class="((status=='window-open')?'white--text':'')+(action.failed?' shake':'')"
                             @click="run_prs(action)"
                             color="green"
                             >
@@ -315,7 +400,7 @@
                           To undo, go to the page above and click the button near the bottom marked <em>revert</em>.
                         </td>
                         <td colspan="3" v-else>
-                          (will be enabled when the window opens)
+                          (can be clicked when the window opens)
                         </td>
                       </tr>
                   </tbody>
@@ -380,8 +465,8 @@
                       <tr>
                         <td>
                           <v-btn
-                            :disabled="status!='window-open'"
-                            :dark="status=='window-open'"
+                            :disabled="(status!='window-open')||action.disabled"
+                            :class="((status=='window-open')?'white--text':'')+(action.failed?' shake':'')"
                             @click="run_workflows(action)"
                             color="green"
                             >
@@ -397,7 +482,273 @@
                           To undo, revert any associated changes then re-run.
                         </td>
                         <td colspan="3" v-else>
-                          (will be enabled when the window opens)
+                          (can be clicked when the window opens)
+                        </td>
+                      </tr>
+                  </tbody>
+                  </template>
+                </v-simple-table>
+
+              </template>
+
+              <template v-else-if="action.type == 'enable_workflows'">
+
+                <v-simple-table>
+                  <template v-slot:default>
+                    <thead>
+                      <tr>
+                        <th>Workflow</th>
+                        <th>Last updated</th>
+                        <th>Status</th>
+                        <th>Link</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        v-for="(workflow,n) in action.workflows"
+                        :key="n"
+                        >
+                        <td>{{workflow.owner}} &gt; {{workflow.repo}} &gt; {{(workflow.data||{name:workflow.id}).name}}</td>
+                        <td>
+                          <template v-if="workflow.data">{{time_ago(workflow.data.updated_at)}}</template>
+                          <template v-else>(loading)</template>
+                        </td>
+                        <td>
+                          <template v-if="workflow.data">
+                            <v-chip
+                              v-if="workflow.data.status == 'completed' && workflow.data.conclusion=='success'"
+                              color="green"
+                              label
+                              dark
+                              >
+                              success
+                            </v-chip>
+                            <v-chip
+                              v-else-if="workflow.data.status == 'completed'"
+                              color="red"
+                              dark
+                              >
+                              {{workflow.data.conclusion}}
+                            </v-chip>
+                            <v-chip
+                              v-else
+                              color="yellow"
+                              dark
+                              >
+                              {{workflow.data.status}}
+                            </v-chip>
+                          </template>
+                          <v-progress-circular
+                            v-else
+                            indeterminate
+                            ></v-progress-circular>
+                        </td>
+                        <td><a :href="`https://github.com/${workflow.owner}/${workflow.repo}/actions/workflows/${workflow.id}`">{{workflow.id}}</a></td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <v-btn
+                            :disabled="(status!='window-open')||action.disabled"
+                            :class="((status=='window-open')?'white--text':'')+(action.failed?' shake':'')"
+                            @click="enable_workflows(action)"
+                            color="green"
+                            >
+                            <template v-if="action.workflows.length == 1">
+                              Enable one workflow
+                            </template>
+                            <template v-else>
+                              Enable {{action.workflows.length}} workflows
+                            </template>
+                          </v-btn>
+                        </td>
+                        <td colspan="3" v-if="status=='window-open'">
+                          To undo, revert any associated changes then re-enable.
+                        </td>
+                        <td colspan="3" v-else>
+                          (can be clicked when the window opens)
+                        </td>
+                      </tr>
+                  </tbody>
+                  </template>
+                </v-simple-table>
+
+              </template>
+
+              <template v-else-if="action.type == 'disable_workflows'">
+
+                <v-simple-table>
+                  <template v-slot:default>
+                    <thead>
+                      <tr>
+                        <th>Workflow</th>
+                        <th>Last updated</th>
+                        <th>Status</th>
+                        <th>Link</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        v-for="(workflow,n) in action.workflows"
+                        :key="n"
+                        >
+                        <td>{{workflow.owner}} &gt; {{workflow.repo}} &gt; {{(workflow.data||{name:workflow.id}).name}}</td>
+                        <td>
+                          <template v-if="workflow.data">{{time_ago(workflow.data.updated_at)}}</template>
+                          <template v-else>(loading)</template>
+                        </td>
+                        <td>
+                          <template v-if="workflow.data">
+                            <v-chip
+                              v-if="workflow.data.status == 'completed' && workflow.data.conclusion=='success'"
+                              color="green"
+                              label
+                              dark
+                              >
+                              success
+                            </v-chip>
+                            <v-chip
+                              v-else-if="workflow.data.status == 'completed'"
+                              color="red"
+                              dark
+                              >
+                              {{workflow.data.conclusion}}
+                            </v-chip>
+                            <v-chip
+                              v-else
+                              color="yellow"
+                              dark
+                              >
+                              {{workflow.data.status}}
+                            </v-chip>
+                          </template>
+                          <v-progress-circular
+                            v-else
+                            indeterminate
+                            ></v-progress-circular>
+                        </td>
+                        <td><a :href="`https://github.com/${workflow.owner}/${workflow.repo}/actions/workflows/${workflow.id}`">{{workflow.id}}</a></td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <v-btn
+                            :disabled="(status!='window-open')||action.disabled"
+                            :class="((status=='window-open')?'white--text':'')+(action.failed?' shake':'')"
+                            @click="disable_workflows(action)"
+                            color="green"
+                            >
+                            <template v-if="action.workflows.length == 1">
+                              Disable one workflow
+                            </template>
+                            <template v-else>
+                              Disable {{action.workflows.length}} workflows
+                            </template>
+                          </v-btn>
+                        </td>
+                        <td colspan="3" v-if="status=='window-open'">
+                          To undo, revert any associated changes then re-disable.
+                        </td>
+                        <td colspan="3" v-else>
+                          (can be clicked when the window opens)
+                        </td>
+                      </tr>
+                  </tbody>
+                  </template>
+                </v-simple-table>
+
+              </template>
+
+              <template v-else-if="action.type == 'create_branches'">
+
+                <v-simple-table>
+                  <template v-slot:default>
+                    <thead>
+                      <tr>
+                        <th>Repo</th>
+                        <th>Source</th>
+                        <th>Destination</th>
+                        <th>Link</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        v-for="(branch,n) in action.branches"
+                        :key="n"
+                        >
+                        <td>{{branch.owner}} &gt; {{branch.repo}}</td>
+                        <td>{{branch.source}}</td>
+                        <td>{{branch.destination}}</td>
+                        <td><a :href="`https://github.com/${branch.owner}/${branch.repo}/branches`">branches</a></td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <v-btn
+                            :disabled="(status!='window-open')||action.disabled"
+                            :class="((status=='window-open')?'white--text':'')+(action.failed?' shake':'')"
+                            @click="create_branches(action,$event)"
+                            color="green"
+                            >
+                            <template v-if="action.branches.length == 1">
+                              Create one branch
+                            </template>
+                            <template v-else>
+                              Create {{action.branches.length}} branches
+                            </template>
+                          </v-btn>
+                        </td>
+                        <td colspan="4" v-if="status=='window-open'">
+                          To undo, run the associated "delete branches" command.
+                        </td>
+                        <td colspan="4" v-else>
+                          (can be clicked when the window opens)
+                        </td>
+                      </tr>
+                  </tbody>
+                  </template>
+                </v-simple-table>
+
+              </template>
+
+              <template v-else-if="action.type == 'delete_branches'">
+
+                <v-simple-table>
+                  <template v-slot:default>
+                    <thead>
+                      <tr>
+                        <th>Repo</th>
+                        <th>Name</th>
+                        <th>Link</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        v-for="(branch,n) in action.branches"
+                        :key="n"
+                        >
+                        <td>{{branch.owner}} &gt; {{branch.repo}}</td>
+                        <td>{{branch.name}}</td>
+                        <td><a :href="`https://github.com/${branch.owner}/${branch.repo}/branches`">branches</a></td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <v-btn
+                            :disabled="(status!='window-open')||action.disabled"
+                            :class="((status=='window-open')?'white--text':'')+(action.failed?' shake':'')"
+                            @click="delete_branches(action,$event)"
+                            color="green"
+                            >
+                            <template v-if="action.branches.length == 1">
+                              Delete one branch
+                            </template>
+                            <template v-else>
+                              Delete {{action.branches.length}} branches
+                            </template>
+                          </v-btn>
+                        </td>
+                        <td colspan="3" v-if="status=='window-open'">
+                          To undo: manually find the associated commit, then recreate the branch by hand
+                        </td>
+                        <td colspan="3" v-else>
+                          (can be clicked when the window opens)
                         </td>
                       </tr>
                   </tbody>
@@ -437,12 +788,27 @@
 
                 <v-simple-table>
                   <template v-slot:default>
+                    <thead>
+                      <tr>
+                        <th>Repo</th>
+                        <th>Issue</th>
+                        <th>Link</th>
+                      </tr>
+                    </thead>
                     <tbody>
+                      <tr
+                        v-for="(comment,n) in action.comments"
+                        :key="n"
+                        >
+                        <td>{{comment.owner}} &gt; {{comment.repo}}</td>
+                        <td>{{comment.id||default_issue_id}}</td>
+                        <td><a :href="`https://github.com/${comment.owner}/${comment.repo}/issues/${comment.id||default_issue_id}`">Issue #{{comment.id||default_issue_id}}</a></td>
+                      </tr>
                       <tr>
                         <td>
                           <v-btn
-                            :disabled="status!='window-open'"
-                            :dark="status=='window-open'"
+                            :disabled="(status!='window-open')||action.disabled"
+                            :class="((status=='window-open')?'white--text':'')+(action.failed?' shake':'')"
                             @click="create_comments(action)"
                             color="green"
                             >
@@ -454,8 +820,10 @@
                             </template>
                           </v-btn>
                         </td>
-                        <td v-if="status!='window-open'">
-                          (will be enabled when the window opens)
+                        <td colspan="2">
+                          <span v-if="status!='window-open'">
+                            (can be clicked when the window opens)
+                          </span>
                         </td>
                       </tr>
                   </tbody>
@@ -541,7 +909,6 @@
             status: '',
             time_to_next_event: 0,
 
-            username: sessionStorage.getItem('username')||'',
             pat: sessionStorage.getItem('pat')||'',
             show_pat: !sessionStorage.getItem('pat'),
 
@@ -567,6 +934,8 @@
                     case "teardown":
                     case "check_sites":
                     case "create_comments":
+                    case "create_branches":
+                    case "delete_branches":
                         break;
                     case "accept_prs":
                         action.prs.forEach(
@@ -576,6 +945,8 @@
                         );
                         break;
                     case "run_workflows":
+                    case "enable_workflows":
+                    case "disable_workflows":
                         action.workflows.forEach(
                             workflow => this.github_api_get(
                                 `/repos/${workflow.owner}/${workflow.repo}/actions/workflows/${workflow.id}/runs`,
@@ -604,6 +975,10 @@
         },
 
         methods: {
+            reload(event) {
+                event.preventDefault();
+                location.reload();
+            },
             update() {
                 const now = new Date().getTime();
                 if ( now < this.start ) {
@@ -630,46 +1005,81 @@
             },
 
             /*
-             * API-related
+             * User interface
              */
-            github_api_get(url,cache) {
+            action_status(action,remaining) {
+                action.failed = false;
+                action.disabled = true;
+                let start_time = new Date(),
+                    overall_result = true;
+                return result => {
+                    overall_result &= result;
+                    if ( !--remaining ) {
+                        setTimeout(
+                            () => {
+                                action.failed = !overall_result;
+                                action.disabled = false
+                            },
+                            Math.max( 0, start_time.getTime() + 1000 - new Date().getTime() )
+                        );
+                    }
+                };
+            },
+
+            /*
+             * Low-level API
+             */
+            github_api_send(url,init,onerror) {
+                if ( !init.headers ) init.headers = {};
+                init.headers['Content-Type'] = 'Accept: application/vnd.github.v3+json';
+                if ( this.pat ) {
+                    init.headers.Authorization = 'token ' + this.pat;
+                }
                 return (
-                    fetch(`https://api.github.com${url}`, {
-                        headers: this.github_headers,
-                        cache: cache||'default'
-                    })
-                        .then( response => response.json() )
-                        .catch( error => this.error = `https://api.github.com${url}: ${error}` )
+                    fetch(`https://api.github.com${url}`,init)
+                        .catch(
+                            error =>
+                            onerror
+                                ? onerror(error)
+                                : this.error = `https://api.github.com${url}: ${error}`
+                        )
                 );
+            },
+            github_api_get(url,cache) {
+                return this.github_api_send(url,{cache: cache||'default'})
+                    .then( response => response.json() )
+            },
+            github_api_delete(url) {
+                return this.github_api_send(url,{method:"DELETE"});
+            },
+            github_api_put(url,onerror) {
+                return this.github_api_send(url,{method:"PUT",body: '{}'},onerror);
             },
             github_api_post(url,body) {
-                return (
-                    fetch(
-                        `https://api.github.com${url}`,
-                        {
-                            headers: this.github_headers,
-                            method: "POST",
-                            body: JSON.stringify(body),
-                        }
-                    )
-                        .catch( error => this.error = `https://api.github.com${url}: ${error}` )
-                );
+                return this.github_api_send(url,{
+                    method:"POST",
+                    body: JSON.stringify(body),
+                })
             },
+
+            /*
+             * High-level API
+             */
             run_prs(action) {
+                const update_status = this.action_status(action,action.prs.length);
                 action.prs.forEach(
-                    pr => fetch(
-                        `https://api.github.com/repos/${pr.owner}/${pr.repo}/pulls/${pr.id}/merge`,
-                        {
-                            headers: this.github_headers,
-                            method: "PUT",
-                            body: '{}'
-                        }
+                    pr => this.github_api_put(
+                        `/repos/${pr.owner}/${pr.repo}/pulls/${pr.id}/merge`,
+                        error => pr.merge_result = error
                     )
-                        .then( () => pr.merge_result = "merged" )
-                        .catch( error => pr.merge_result = error )
+                        .then( () => {
+                            update_status(data.ok);
+                            pr.merge_result = "merged"
+                        })
                 );
             },
             run_workflows(action) {
+                const update_status = this.action_status(action,action.workflows.length);
                 action.workflows.forEach(
                     workflow => this.github_api_get(
                         `/repos/${workflow.owner}/${workflow.repo}/actions/workflows/${workflow.id}/runs`,
@@ -693,11 +1103,33 @@
                                 `/repos/${workflow.owner}/${workflow.repo}/actions/workflows/${workflow.id}/dispatches`,
                                 {"ref":workflow.ref||"main"}
                             )
-                                .then( () => this.callbacks.push(callback) );
+                                .then( () => {
+                                    update_status(true);
+                                    this.callbacks.push(callback);
+                                });
                         })
                 );
             },
+            enable_workflows(action) {
+                const update_status = this.action_status(action,action.workflows.length);
+                action.workflows.forEach(
+                    workflow => this.github_api_put(
+                                `/repos/${workflow.owner}/${workflow.repo}/actions/workflows/${workflow.id}/enable`
+                    )
+                        .then ( data => update_status(data.ok) )
+                );
+            },
+            disable_workflows(action) {
+                const update_status = this.action_status(action,action.workflows.length);
+                action.workflows.forEach(
+                    workflow => this.github_api_put(
+                                `/repos/${workflow.owner}/${workflow.repo}/actions/workflows/${workflow.id}/disable`
+                    )
+                        .then ( data => update_status(data.ok) )
+                );
+            },
             create_comments(action) {
+                const update_status = this.action_status(action,action.comments.length);
                 action.comments.forEach(
                     comment => this.github_api_post(
                         `/repos/${comment.owner}/${comment.repo}/issues/${comment.id||this.default_issue_id}/comments`,
@@ -717,6 +1149,37 @@
                             }),
                         }
                     )
+                        .then ( data => update_status(data.ok) )
+                );
+            },
+            create_branches(action) {
+                const update_status = this.action_status(action,action.branches.length);
+                action.branches.forEach(
+                    branch => this.github_api_get(
+                        `/repos/${branch.owner}/${branch.repo}/git/ref/heads/${branch.source}`
+                    )
+                        .then( data =>
+                            this.github_api_post(
+                                `/repos/${branch.owner}/${branch.repo}/git/refs`,
+                                {
+                                    ref: 'refs/heads/'+branch.destination,
+                                    sha: data.object.sha,
+                                }
+                            )
+                                .then ( data => update_status(data.ok) )
+                                .catch( () => update_status(false) )
+                        )
+                        .catch( () => update_status(false) )
+                );
+            },
+            delete_branches(action) {
+                const update_status = this.action_status(action,action.branches.length);
+                action.branches.forEach(
+                    branch => this.github_api_delete(
+                        `/repos/${branch.owner}/${branch.repo}/git/refs/heads/${branch.name}`,
+                    )
+                        .then ( data => update_status(data.ok) )
+                        .catch( () => update_status(false) )
                 );
             },
         },
@@ -746,15 +1209,6 @@
                 default: return `Maintenance countdown.  To use this page, create a URL like: <tt>${location.href.replace(/#.*/,'')}#start=&lt;start-time&gt;&amp;end=&lt;end_time&gt;</tt>`;
                 }
             },
-            github_headers() {
-                const headers = {
-                    'Content-Type': 'Accept: application/vnd.github.v3+json',
-                };
-                if ( this.username && this.pat ) {
-                    headers.Authorization = 'Basic ' + btoa(this.username + ":" + this.pat);
-                }
-                return headers;
-            },
             workflows() {
                 const ret = {};
                 this.actions.forEach(
@@ -778,9 +1232,6 @@
         watch: {
             pat() {
                 sessionStorage.setItem('pat',this.pat);
-            },
-            username() {
-                sessionStorage.setItem('username',this.username);
             },
             step_no() {
                 sessionStorage.setItem('step_no',this.step_no);
