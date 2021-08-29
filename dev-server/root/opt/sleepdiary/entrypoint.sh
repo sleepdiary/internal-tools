@@ -79,8 +79,15 @@ for ARG in "$@"
 do
     case "$ARG" in
         check)
-            for N in $( seq 1 12 )
+            set -m
+            tail -n 0 -f $( find /var/log -type f -name \*log ) &
+            sleep 1
+            echo ">>> nginx error log"
+            cat /var/log/nginx/error.log
+            echo "<<< nginx error log"
+            for N in $( seq 1 20 )
             do
+                echo "Checking sites..."
                 if curl --fail --silent --fail-early --max-time 10 \
                         http://localhost:8080/ \
                         http://localhost:8080/dashboard/ \
