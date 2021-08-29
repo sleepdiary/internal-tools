@@ -43,11 +43,11 @@
 
             <p>If you prefer, you can use the server from a command line.</p>
 
-            <p>To see the server console, do <tt>docker exec -it sleepdiary_dev_server tmux attach -tconsole</tt><br/>Typing is enabled here because this only works from the computer running the server.  The console uses <a href="https://github.com/tmux/tmux/wiki">tmux</a>, so press <tt>ctrl-b d</tt> to "detach" (exit) the console.</p>
+            <p>To see the server console, do <tt>docker exec -it sleepdiary-dev-server tmux attach -tconsole</tt><br/>Typing is enabled here because this only works from the computer running the server.  The console uses <a href="https://github.com/tmux/tmux/wiki">tmux</a>, so press <tt>ctrl-b d</tt> to "detach" (exit) the console.</p>
 
-            <p>To build and test all of your repositories, do <tt>docker exec -it sleepdiary_dev_server /opt/sleepdiary/rebuild-and-test.sh</tt></p>
+            <p>To build and test all of your repositories, do <tt>docker exec -it sleepdiary-dev-server /opt/sleepdiary/rebuild-and-test.sh</tt></p>
 
-            <p>To open a new shell, do <tt>docker exec -it sleepdiary_dev_server /bin/bash -l</tt><br/>The <tt>-l</tt> option creates a <tt>login</tt> shell, which gives you a nicer command prompt.</p>
+            <p>To open a new shell, do <tt>docker exec -it sleepdiary-dev-server /bin/bash -l</tt><br/>The <tt>-l</tt> option creates a <tt>login</tt> shell, which gives you a nicer command prompt.</p>
 
             <h1>Updating the server</h1>
 
@@ -55,18 +55,18 @@
 
             <pre>
 # download the latest version:
-docker pull sleepdiaryproject/dev_server
+docker pull sleepdiaryproject/dev-server
 
 # stop and delete the old server:
-docker stop sleepdiary_dev_server
-docker container rm sleepdiary_dev_server
+docker stop sleepdiary-dev-server
+docker container rm sleepdiary-dev-server
 
 # start the new version (remember to set the right path):
 docker run \
     -d -p 8080-8090:8080-8090 \
     -v <em style="color:grey">/path/to/sleepdiary</em>:/app \
-    --name sleepdiary_dev_server \
-    sleepdiaryproject/dev_server
+    --name sleepdiary-dev-server \
+    sleepdiaryproject/dev-server
             </pre>
 
             <h1>Editing this file</h1>

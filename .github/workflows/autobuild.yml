@@ -57,13 +57,13 @@ jobs:
             ghcr.io/${{ github.repository_owner }}/builder
             ${{ secrets.DOCKERHUB_USERNAME }}/builder
 
-      - name: Extract metadata (tags, labels) for "dev_server"
-        id: dev_server_meta
+      - name: Extract metadata (tags, labels) for "dev-server"
+        id: dev-server_meta
         uses: docker/metadata-action@v3
         with:
           images: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/dev_server
-            ghcr.io/${{ github.repository_owner }}/dev_server
+            ${{ secrets.DOCKERHUB_USERNAME }}/dev-server
+            ghcr.io/${{ github.repository_owner }}/dev-server
 
       - name: Build and push image for "builder"
         uses: docker/build-push-action@v2
@@ -79,4 +79,4 @@ jobs:
           context: dev-server
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/dev-server:latest
-          labels: ${{ steps.dev_server_meta.outputs.labels }}
+          labels: ${{ steps.dev-server_meta.outputs.labels }}
