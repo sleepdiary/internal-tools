@@ -2,6 +2,8 @@
 #
 # Builds the container used by other projects
 
+set -e
+
 BASE_DIRECTORY="$( dirname "$0" )/.."
 SUBDIRECTORIES=""
 SUBDIRECTORIES="$SUBDIRECTORIES $BASE_DIRECTORY/builder"
