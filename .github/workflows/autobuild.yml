@@ -9,6 +9,9 @@ name: Publish Docker images
 on:
   schedule:
     - cron: "37 3 7 * *"
+  push:
+    branches:
+      - latest
   workflow_dispatch:
 
 jobs:
