@@ -80,3 +80,13 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/dev-server:latest
           labels: ${{ steps.dev-server_meta.outputs.labels }}
+
+  check:
+    name: Check latest image works correctly
+    runs-on: ubuntu-latest
+    needs: push_to_registries
+    steps:
+      - name: Check
+        uses: docker://docker.io/sleepdiaryproject/dev-server:latest
+        with:
+          args: check
