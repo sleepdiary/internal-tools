@@ -14,4 +14,4 @@ echo "Checking version '$VERSION'"
 
 docker pull "docker.io/sleepdiaryproject/dev-server:$VERSION"
 
-docker run --rm -v "$PATH_TO_SLEEPDIARY:/app" "sleepdiaryproject/dev-server:$VERSION" check
+docker run --rm "sleepdiaryproject/dev-server:$VERSION" check
