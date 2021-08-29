@@ -85,6 +85,6 @@ jobs:
     needs: push_to_registries
     steps:
       - name: Check
-        uses: docker://ghcr.io/sleepdiary/dev-server:pre-release
+        uses: docker://docker.io/sleepdiaryproject/dev-server:pre-release
         with:
           args: check
