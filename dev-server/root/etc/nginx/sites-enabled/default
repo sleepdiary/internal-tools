@@ -35,10 +35,10 @@ server {
     location /dev-server/ {
         # Use the version in the repo if the user has cloned it
         root /app/internal-tools/dev-server/root/opt/sleepdiary;
-        try_files $uri $uri/index.html @default_dev_server;
+        try_files $uri $uri/index.html @default-dev-server;
     }
 
-    location @default_dev_server {
+    location @default-dev-server {
         # Alternative directory for users that haven't installed the internal-tools repo
         root /opt/sleepdiary;
     }

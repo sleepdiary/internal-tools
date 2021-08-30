@@ -3,7 +3,7 @@
 # the scrollback=0 below currently does nothing useful,
 # but in future will hopefully disable the scrollbar:
 # https://github.com/xtermjs/xterm.js/pull/3398/commits/dab73aa26355d8897968bffe3fc3366c2ca80a28
-start-stop-daemon \
+/sbin/start-stop-daemon \
     --chdir /app \
     --start \
     --background \
@@ -15,7 +15,7 @@ start-stop-daemon \
     -t 'theme={"foreground":"black","background":"white"}' \
     tmux attach -tconsole
 
-start-stop-daemon \
+/sbin/start-stop-daemon \
     --chdir /app \
     --start \
     --background \
@@ -30,7 +30,7 @@ start-stop-daemon \
 
 /etc/init.d/nginx start
 
-start-stop-daemon \
+/sbin/start-stop-daemon \
     --chdir /opt/sleepdiary \
     --start \
     --background \
@@ -74,5 +74,42 @@ do sleep 1
 done
 # Fix socket permissions:
 chmod 666 /opt/sleepdiary/web-ttys/*.sock
+
+for ARG in "$@"
+do
+    case "$ARG" in
+        check)
+            set -m
+            tail -n 0 -f $( find /var/log -type f -name \*log ) &
+            sleep 1
+            echo ">>> nginx error log"
+            cat /var/log/nginx/error.log
+            echo "<<< nginx error log"
+            for N in $( seq 1 20 )
+            do
+                echo "Checking sites..."
+                if curl --fail --silent --fail-early --max-time 10 \
+                        http://localhost:8080/dev-server/ \
+                        > /dev/null
+                then
+                    echo "All sites up - check succeeded"
+                    exit 0
+                fi
+                echo "Some sites could not be downloaded - waiting ($N)"
+                sleep 10
+            done
+            echo "Sites did not come up within the timeout - check failed"
+            exit 2
+            ;;
+        *)
+            cat <<EOF
+Usage: docker run -v /path/to/sleepdiary:/app -d -p 8080-8090:8080-8090 --name sleepdiary-dev-server sleepdiaryproject/dev-server
+
+Runs all the sleepdiary repositories
+EOF
+            exit 0
+            ;;
+    esac
+done
 
 sleep infinity

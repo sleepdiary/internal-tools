@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 . ../utils/Dockerfile-utils.sh
 
 # Serve our various repo's from a single port:

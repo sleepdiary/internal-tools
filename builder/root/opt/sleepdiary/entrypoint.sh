@@ -44,6 +44,7 @@ run_merge() {
         echo "$LOG_COMMAND"
         $LOG_COMMAND
         echo
+        [ -e .git/MERGE_HEAD ] && git merge --abort
         return 2
     fi
 }
@@ -52,6 +53,8 @@ MAIN=main
 if ! git rev-parse --verify "$MAIN" 2>/dev/null
 then MAIN=origin/main
 fi
+
+PATH="/opt/sleepdiary/bin:$PATH"
 
 run_tests() {
 
@@ -88,7 +91,6 @@ run_tests() {
         git checkout --quiet built
         run_merge "$MAIN" --no-commit
         RESULT="$?"
-        [ -e .git/MERGE_HEAD ] && git merge --abort
         git checkout --quiet "$MAIN"
 
     elif [ "$(cat .git/HEAD )" = "ref: refs/heads/built" ]
@@ -97,7 +99,6 @@ run_tests() {
         echo
         run_merge "$MAIN" --no-commit
         RESULT="$?"
-        [ -e .git/MERGE_HEAD ] && git merge --abort
 
     else
 

@@ -58,19 +58,19 @@ jobs:
 
                 send_message(`# ${time_before_start/48} days notice of planned maintenance
 
-            The maintenance window will open [a little less than ${time_before_start*2} hours](https://sleepdiary.github.io/internal-tools/countdown.html#start=${{ steps.settings.outputs.maintenance-window-start }}&end=${{ steps.settings.outputs.maintenance-window-end }}) after this message was posted.  [Edit \`index.js\`](https://github.com/${{ env.SOURCE }}/edit/main/index.js) if you want more time.
+            The maintenance window will open [a little less than ${time_before_start*2} hours](https://sleepdiary.github.io/internal-tools/maintenance-actions.html#start=${{ steps.settings.outputs.maintenance-window-start }}&end=${{ steps.settings.outputs.maintenance-window-end }}) after this message was posted.  [Edit \`index.js\`](https://github.com/${{ env.SOURCE }}/edit/main/index.js) if you want more time.
 
             I'll remind you again tomorrow.
             `);
 
-            } else if ( time_before_start >= 0 ) {
+            } else if ( time_before_start > 0 ) {
 
                 switch ( time_before_start ) {
 
                 case 48:
                     send_message(`# One day notice of planned maintenance
 
-            The maintenance window will open at [about this time tomorrow](https://sleepdiary.github.io/internal-tools/countdown.html#start=${{ steps.settings.outputs.maintenance-window-start }}&end=${{ steps.settings.outputs.maintenance-window-end }}).  Make sure you're prepared, or [edit \`index.js\`](https://github.com/${{ env.SOURCE }}/edit/main/index.js) if you want more time.
+            The maintenance window will open at [about this time tomorrow](https://sleepdiary.github.io/internal-tools/maintenance-actions.html#start=${{ steps.settings.outputs.maintenance-window-start }}&end=${{ steps.settings.outputs.maintenance-window-end }}).  Make sure you're prepared, or [edit \`index.js\`](https://github.com/${{ env.SOURCE }}/edit/main/index.js) if you want more time.
 
             I'm next scheduled to let you know when there's *twelve hours left*, but it might be a bit later if GitHub Actions' scheduler is being slow today.
             `);
@@ -78,7 +78,7 @@ jobs:
                 case 24:
                     send_message(`# Twelve hours notice of planned maintenance
 
-            The maintenance window will open in [less than twelve hours](https://sleepdiary.github.io/internal-tools/countdown.html#start=${{ steps.settings.outputs.maintenance-window-start }}&end=${{ steps.settings.outputs.maintenance-window-end }}).  [Edit \`index.js\`](https://github.com/${{ env.SOURCE }}/edit/main/index.js) if you're not sure you'll be ready.
+            The maintenance window will open in [less than twelve hours](https://sleepdiary.github.io/internal-tools/maintenance-actions.html#start=${{ steps.settings.outputs.maintenance-window-start }}&end=${{ steps.settings.outputs.maintenance-window-end }}).  [Edit \`index.js\`](https://github.com/${{ env.SOURCE }}/edit/main/index.js) if you're not sure you'll be ready.
 
             I'm next scheduled to let you know when there's *one hour left*, but it might be a bit later if GitHub Actions' scheduler is being slow today.
             `);
@@ -86,7 +86,7 @@ jobs:
                 case 2:
                     send_message(`# One hour notice of planned maintenance
 
-            The maintenance window will open [about an hour from now](https://sleepdiary.github.io/internal-tools/countdown.html#start=${{ steps.settings.outputs.maintenance-window-start }}&end=${{ steps.settings.outputs.maintenance-window-end }}).  This is your last chance to [edit \`index.js\`](https://github.com/${{ env.SOURCE }}/edit/main/index.js) if you're not ready yet.
+            The maintenance window will open [about an hour from now](https://sleepdiary.github.io/internal-tools/maintenance-actions.html#start=${{ steps.settings.outputs.maintenance-window-start }}&end=${{ steps.settings.outputs.maintenance-window-end }}).  This is your last chance to [edit \`index.js\`](https://github.com/${{ env.SOURCE }}/edit/main/index.js) if you're not ready yet.
 
             I'm next scheduled to let you know when there's *30 minutes left*, but it might be a bit later if GitHub Actions' scheduler is being slow today.
             `);
@@ -94,19 +94,11 @@ jobs:
                 case 1:
                     send_message(`# 30 minutes notice of planned maintenance
 
-            The maintenance window is [about to open](https://sleepdiary.github.io/internal-tools/countdown.html#start=${{ steps.settings.outputs.maintenance-window-start }}&end=${{ steps.settings.outputs.maintenance-window-end }}).  [See \`index.js\`](https://github.com/${{ env.SOURCE }}/blob/main/index.js) for exact times.
+            The maintenance window is [about to open](https://sleepdiary.github.io/internal-tools/maintenance-actions.html#start=${{ steps.settings.outputs.maintenance-window-start }}&end=${{ steps.settings.outputs.maintenance-window-end }}).  [See \`index.js\`](https://github.com/${{ env.SOURCE }}/blob/main/index.js) for exact times.
 
             1. Read through the ticket and start preparing now
             3. [Manually generate a notice](https://github.com/andrew-sayers/internal-tools/actions/workflows/maintenance-timer.yml) when the window opens
                * this ensures the notice is sent on time, even if GitHub Actions is being slow today
-            `);
-                    break;
-                case 0:
-                    send_message(`# Start the maintenance procedure
-
-            The maintenance window is [now open](https://sleepdiary.github.io/internal-tools/countdown.html#start=${{ steps.settings.outputs.maintenance-window-start }}&end=${{ steps.settings.outputs.maintenance-window-end }}).  Only maintenance-related pull requests are allowed.
-
-            Please follow the procedure described in the first message.
             `);
                     break;
 
@@ -129,7 +121,7 @@ jobs:
                 case 1:
                     send_message(`# Start the fallback procedure
 
-            The maintenance window will close in [less than ${exact_time_before_end} minutes](https://sleepdiary.github.io/internal-tools/countdown.html#start=${{ steps.settings.outputs.maintenance-window-start }}&end=${{ steps.settings.outputs.maintenance-window-end }}).  After that, we'll switch back to allowing non-maintenance pull requests.  There should be just enough time to execute the falback procedure now.
+            The maintenance window will close in [less than ${exact_time_before_end} minutes](https://sleepdiary.github.io/internal-tools/maintenance-actions.html#start=${{ steps.settings.outputs.maintenance-window-start }}&end=${{ steps.settings.outputs.maintenance-window-end }}).  After that, we'll switch back to allowing non-maintenance pull requests.  There should be just enough time to execute the falback procedure now.
 
             This is the last notification before the maintenance window closes.  Depending how much GitHub Actions' scheduler is delayed today, the final notification may come in a while after it closes.
             `);
@@ -140,7 +132,7 @@ jobs:
                     send_message(
                         `# ${Math.ceil( ( now - start_time ) / ( end_time - start_time ) * 100 )}% of the maintenance window elapsed
 
-            The maintenance window will close in [less than ${exact_time_before_end} minutes](https://sleepdiary.github.io/internal-tools/countdown.html#start=${{ steps.settings.outputs.maintenance-window-start }}&end=${{ steps.settings.outputs.maintenance-window-end }}).  If you're not sure you'll be finished by then, gather any data you need then execute the fallback procedure.
+            The maintenance window will close in [less than ${exact_time_before_end} minutes](https://sleepdiary.github.io/internal-tools/maintenance-actions.html#start=${{ steps.settings.outputs.maintenance-window-start }}&end=${{ steps.settings.outputs.maintenance-window-end }}).  If you're not sure you'll be finished by then, gather any data you need then execute the fallback procedure.
 
             You can always try again another day.
             `
