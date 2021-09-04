@@ -32,16 +32,20 @@ case "$1" in
             | sed -ne 's/^    "name": "\(.*\)",/\1/p' \
             | while read REPO
         do
-            echo "$REPO"
+            echo
+            echo "Upgrading repository: $REPO"
+            echo
             DIR="root/opt/sleepdiary/cache/$REPO"
             mkdir -p "$DIR"
             GIT_DIR="$( dirname "$0" )/../../$REPO/.git"
             if [ -e "$GIT_DIR" ]
             then
+                echo "Using local copy of package{,-lock}.json"
                 git --git-dir="$GIT_DIR" show main:package.json > "$DIR/package.json" || true
                 git --git-dir="$GIT_DIR" show main:package-lock.json > "$DIR/package-lock.json" || true
             else
-                curl --silent \
+                echo "Downloading package{,-lock}.json"
+                curl -f --silent \
                      -o "$DIR/package.json" "https://raw.githubusercontent.com/sleepdiary/$REPO/main/package.json" \
                      -o "$DIR/package-lock.json" "https://raw.githubusercontent.com/sleepdiary/$REPO/main/package-lock.json"
             fi
@@ -49,6 +53,7 @@ case "$1" in
             then
                 cd "$DIR"
                 npm rm $PROGRAMS
+                cd -
             else
                 rm -rf "$DIR"
             fi
