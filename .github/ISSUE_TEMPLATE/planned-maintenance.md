@@ -30,14 +30,11 @@ Some automations are based on these times.  No-one will mind if you manually clo
 
 ## Fallback plan
 
-1. [ ] write a series of steps (or ideally a single shell script) that will revert the whole project back to the state it was in at the start of the maintenance window.
+1. [ ] fill in the section below with a series of steps (or ideally a single shell script) that will revert the whole project back to the state it was in at the start of the maintenance window
 2. [ ] test the steps on a personal repository
 3. [ ] look for error messages in the actions' output that may not be reflected in the exit status
-3. [ ] update this ticket with steps necessary to prepare for and execute the fallback plan
-  (for example, the you will probably want to create some `last-known-good` branches)
 4. [ ] be prepared to use these steps at the time you promised
 5. [ ] make sure this plan will take less than half an hour to run
-6. [ ] check all TODO items in this issue have been completed
 
 ```bash
 # Example steps to revert:
