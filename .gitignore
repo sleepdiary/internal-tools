@@ -1,5 +1,6 @@
 # Add files to ignore here:
 node_modules
+/builder/root/opt/sleepdiary/cache/planned-maintenance-info
 
 # Files that are only used in the "built" branch:
 Dockerfile
