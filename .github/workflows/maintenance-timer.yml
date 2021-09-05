@@ -94,11 +94,7 @@ jobs:
                 case 1:
                     send_message(`# 30 minutes notice of planned maintenance
 
-            The maintenance window is [about to open](https://andrew-sayers.github.io/planned-maintenance/#https://sleepdiary.github.io/planned-maintenance-info/index.js).  [See \`index.js\`](https://github.com/${{ env.SOURCE }}/blob/main/index.js) for exact times.
-
-            1. Read through the ticket and start preparing now
-            3. [Manually generate a notice](https://github.com/andrew-sayers/internal-tools/actions/workflows/maintenance-timer.yml) when the window opens
-               * this ensures the notice is sent on time, even if GitHub Actions is being slow today
+            The maintenance window is [about to open](https://andrew-sayers.github.io/planned-maintenance/#https://sleepdiary.github.io/planned-maintenance-info/index.js).  [See \`index.js\`](https://github.com/${{ env.SOURCE }}/blob/main/index.js) for exact times.  Please read through the ticket and start preparing now.
             `);
                     break;
 
