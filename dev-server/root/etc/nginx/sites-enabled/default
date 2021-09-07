@@ -13,7 +13,11 @@ server {
         # First attempt to serve request as file, then
         # as directory, then fall back to displaying a 404.
         root /app;
-        try_files $uri $uri/index.html /sleepdiary.github.io$uri /sleepdiary.github.io$uri/index.html @markdown_server;
+        try_files $uri $uri/index.html /sleepdiary.github.io$uri /sleepdiary.github.io$uri/index.html @markdown_server @github_pages;
+    }
+
+    location @github_pages {
+        return 302 https://sleepdiary.github.io$uri;
     }
 
     location /dashboard/ {
