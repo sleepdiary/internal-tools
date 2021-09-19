@@ -30,26 +30,18 @@ Some automations are based on these times.  No-one will mind if you manually clo
 
 ## Fallback plan
 
-1. [ ] fill in the section below with a series of steps (or ideally a single shell script) that will revert the whole project back to the state it was in at the start of the maintenance window
-2. [ ] test the steps on a personal repository
-3. [ ] look for error messages in the actions' output that may not be reflected in the exit status
-4. [ ] be prepared to use these steps at the time you promised
-5. [ ] make sure this plan will take less than half an hour to run
+1. [ ] check the fallback plan below, modify it or write a new one as necessary
+2. [ ] be prepared to use these steps at the time you promised
+3. [ ] make sure this plan will take less than half an hour to run
 
-```bash
-# Example steps to revert:
-SLEEPDIARY_ROOT=/path/to/sleepdiary
-PUSH_LOCATION=safe-personal # while testing
-#PUSH_LOCATION=unsafe-canonical # in practice
-for REPO in # core dashboard info report sleepdiary.github.io
-do cd "$SLEEPDIARY_ROOT/$REPO" && git revert last-known-good^..main && git push "$PUSH_LOCATION"
-done
-```
+Steps to revert this maintenance:
+1. `git pull && git revert last-known-good..main && git push` in each modified branch
+2. re-run any relevant workflows
 
 ## Procedure
 
 1. [ ] final check of [the maintenance actions](https://github.com/sleepdiary/planned-maintenance-info/edit/main/index.js)
-2. [ ] check all items before this one have been ticked off
+2. [ ] confirm that all items before this one have been ticked off
 3. [ ] follow [the maintenance actions](https://github.com/sleepdiary/planned-maintenance-info/edit/main/index.js)
 4. [ ] add a comment to any waiting branches that it's now safe to merge
 
