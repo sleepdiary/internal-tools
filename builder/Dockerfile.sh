@@ -57,7 +57,7 @@ fi
 # then have utils.sh copy that directory into place
 cat <<EOF
  \\
-&& for DIR in /opt/sleepdiary/cache/*/ ; do cd "\$DIR"; mkdir node_modules; npm ci || exit 2; done \\
+&& for DIR in /opt/sleepdiary/cache/*/ ; do cd "\$DIR"; mkdir -p node_modules; npm ci || exit 2; done \\
 EOF
 
 install_npm_programs $NPM_PROGRAMS
