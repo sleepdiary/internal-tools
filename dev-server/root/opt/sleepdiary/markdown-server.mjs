@@ -145,8 +145,10 @@ const server = http.createServer( (req,res) => {
         }
     } else {
         log_message( `not found: ${filename}` );
-        res.writeHead(404);
-        res.end("Not found\n");
+        res.writeHead(302, {
+            Location: `https://sleepdiary.github.io${req.url}`
+        });
+        res.end();
     }
 
 });
