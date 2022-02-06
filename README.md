@@ -2,11 +2,11 @@
 
 As part of the [Sleep Diary Project](https://sleepdiary.github.io/), this manages the build environment used by other repositories.
 
-See [the getting started guide](https://github.com/sleepdiary/docs/blob/main/development/getting-started.md) if you would like to run the internal tools on your computer.  Tools are rebuilt automatically every 30 days, so you should only need to use this repository directly if you're maintaining the Sleep Diary Project itself.
+See [the getting started guide](https://sleepdiary.github.io/docs/contribute/dev-environment.html) if you would like to run the internal tools on your computer.  Tools are rebuilt automatically every 30 days, so you should only need to use this repository directly if you're maintaining the Sleep Diary Project itself.
 
 ## Developing the tools themselves
 
-This procedure should only be necessary if you need to e.g. improve the error messages printed by the build process.  If you're developing individual repositories, [the getting started guide](https://github.com/sleepdiary/docs/blob/main/development/getting-started.md) has everything you need.
+This procedure should only be necessary if you need to e.g. improve the error messages printed by the build process.  If you're developing individual repositories, [the getting started guide](https://sleepdiary.github.io/docs/contribute/dev-environment.html) has everything you need.
 
 To build the tools locally, do:
 
@@ -52,6 +52,6 @@ Once you have confirmed the new tag won't break anything, [create a new planned 
 
 ## See Also
 
-- [Getting started](https://github.com/sleepdiary/docs/blob/main/development/getting-started.md)
+- [Getting started](https://sleepdiary.github.io/docs/contribute/dev-environment.html)
 - [Maintainer environment recommendations](https://github.com/sleepdiary/docs/blob/main/development/maintainer-environment-recommendations.md)
 - [Minimising planned maintenance](https://github.com/sleepdiary/docs/blob/main/development/minimising-planned-maintenance.md)
