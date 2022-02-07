@@ -99,7 +99,7 @@ jobs:
                     break;
 
                 default:
-                    console.log(`Not sending - time_before_start == ${time_before_start}`);
+                    console.log(`Not sending - time_before_start == ${time_before_start} half-hour blocks`);
 
                 }
 
