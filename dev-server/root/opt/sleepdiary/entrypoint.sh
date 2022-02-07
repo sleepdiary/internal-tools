@@ -34,7 +34,8 @@
     --chdir /opt/sleepdiary \
     --start \
     --background \
-    --exec /opt/sleepdiary/markdown-server.mjs
+    --exec /opt/sleepdiary/markdown-server.mjs \
+    > /var/log/markdown-server.log 2>&1
 
 # Used by Vue apps:
 export VUE_APP_PUBLIC_PATH="/dashboard"

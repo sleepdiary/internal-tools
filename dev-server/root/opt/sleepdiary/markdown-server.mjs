@@ -14,6 +14,10 @@ import remarkHtml from 'remark-html';
 import remarkGithub from 'remark-github';
 import escape from 'escape-html';
 
+function log_message(message) {
+    //console.log(message);
+}
+
 const header = `<!DOCTYPE html>
 <html>
 <head>
@@ -105,6 +109,7 @@ const server = http.createServer( (req,res) => {
         } else {
             fs.readFile(filename, (err, data) => {
                 if ( err ) {
+                    log_message( `read error: ${filename}` );
                     res.writeHead(500);
                     res.end("Read error\n");
                 } else {
@@ -127,6 +132,7 @@ const server = http.createServer( (req,res) => {
                             }
                             res.setHeader("Content-Type", "text/html; charset=utf-8");
                             res.writeHead(200);
+                            log_message( `success: ${filename}` );
                             res.end(
                                 header.replace( /TITLE/, title )
                                     + String(file)
@@ -138,8 +144,11 @@ const server = http.createServer( (req,res) => {
             });
         }
     } else {
-        res.writeHead(404);
-        res.end("Not found\n");
+        log_message( `not found: ${filename}` );
+        res.writeHead(302, {
+            Location: `https://sleepdiary.github.io${req.url}`
+        });
+        res.end();
     }
 
 });
