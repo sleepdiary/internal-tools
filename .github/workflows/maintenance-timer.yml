@@ -46,7 +46,7 @@ jobs:
 
             function send_message(body) {
                 console.log("Sending:\n" + body);
-                github.issues.createComment({
+                github.rest.issues.createComment({
                     issue_number: issue,
                     owner: context.repo.owner,
                     repo: context.repo.repo,
