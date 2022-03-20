@@ -51,6 +51,7 @@ case "$1" in
             fi
             if [ -s "$DIR/package-lock.json" ]
             then
+                echo "Removing packages provided directly by the environment"
                 cd "$DIR"
                 npm rm $PROGRAMS
                 cd -

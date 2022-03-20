@@ -24,7 +24,7 @@ jobs:
       - name: Get maintenance window
         id: settings
         uses: sleepdiary/planned-maintenance-info@main
-      - uses: actions/github-script@v5
+      - uses: actions/github-script@v6
         with:
           script: |
             const HALF_AN_HOUR = 1000*60*30,
@@ -46,7 +46,7 @@ jobs:
 
             function send_message(body) {
                 console.log("Sending:\n" + body);
-                github.issues.createComment({
+                github.rest.issues.createComment({
                     issue_number: issue,
                     owner: context.repo.owner,
                     repo: context.repo.repo,
@@ -99,7 +99,7 @@ jobs:
                     break;
 
                 default:
-                    console.log(`Not sending - time_before_start == ${time_before_start}`);
+                    console.log(`Not sending - time_before_start == ${time_before_start} half-hour blocks`);
 
                 }
 

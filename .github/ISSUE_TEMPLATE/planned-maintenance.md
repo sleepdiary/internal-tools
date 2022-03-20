@@ -13,7 +13,7 @@ This issue tracks a period of planned maintenance.  For example, an update that 
 
 **Reason for maintenance:** TODO: one line explanation of why this maintenance is required
 **Issues to be aware of:** TODO: e.g. will the site break?  Will actions behave strangely?
-**More information:** see the [maintenance actions checklist](https://sleepdiary.github.io/internal-tools/maintenance-actions.html)
+**More information:** see the [maintenance actions checklist](https://andrew-sayers.github.io/planned-maintenance/#https://sleepdiary.github.io/planned-maintenance-info/index.js)
 
 ## Planning
 
@@ -30,19 +30,19 @@ Some automations are based on these times.  No-one will mind if you manually clo
 
 ## Fallback plan
 
-1. [ ] check the fallback plan below, modify it or write a new one as necessary
-2. [ ] be prepared to use these steps at the time you promised
-3. [ ] make sure this plan will take less than half an hour to run
-
 Steps to revert this maintenance:
 1. `git pull && git revert last-known-good..main && git push` in each modified branch
 2. re-run any relevant workflows
+
+1. [ ] check the fallback plan above, modify it or write a new one as necessary
+2. [ ] be prepared to use these steps at the time you promised
+3. [ ] make sure this plan will take less than half an hour to run
 
 ## Procedure
 
 1. [ ] final check of [the maintenance actions](https://github.com/sleepdiary/planned-maintenance-info/edit/main/index.js)
 2. [ ] confirm that all items before this one have been ticked off
-3. [ ] follow [the maintenance actions](https://github.com/sleepdiary/planned-maintenance-info/edit/main/index.js)
+3. [ ] follow [the maintenance checklist](https://andrew-sayers.github.io/planned-maintenance/#https://sleepdiary.github.io/planned-maintenance-info/index.js)
 4. [ ] add a comment to any waiting branches that it's now safe to merge
 
 ## Review and process improvements
