@@ -63,7 +63,7 @@ case "$1" in
 
         # Update Node itself:
         curl --silent https://nodejs.org/dist/index.json \
-            | sed -ne '/"version"/ { s/{"version":"v\([0-9]*\).*/\1/p ; q }' \
+            | sed -ne '/"version".*"lts":"/ { s/{"version":"v\([0-9]*\).*/\1/p ; q }' \
             > node-version.txt \
             || exit 2
         ;;
