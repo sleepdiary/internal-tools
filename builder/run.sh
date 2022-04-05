@@ -47,7 +47,8 @@ case "$1" in
                 echo "Downloading package{,-lock}.json"
                 curl -f --silent \
                      -o "$DIR/package.json" "https://raw.githubusercontent.com/sleepdiary/$REPO/main/package.json" \
-                     -o "$DIR/package-lock.json" "https://raw.githubusercontent.com/sleepdiary/$REPO/main/package-lock.json"
+                     -o "$DIR/package-lock.json" "https://raw.githubusercontent.com/sleepdiary/$REPO/main/package-lock.json" \
+                     || true
             fi
             if [ -s "$DIR/package-lock.json" ]
             then
