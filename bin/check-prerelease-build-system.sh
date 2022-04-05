@@ -26,6 +26,7 @@ git checkout $QUIET "unsafe-canonical/$BRANCH"
 sed -i -e 's/builder:latest/builder:pre-release/g' .github/workflows/main.yml
 git commit $QUIET .github/workflows/main.yml -m "WIP: test the pre-release builder against this repo"
 git push $QUIET origin HEAD:main
+git fetch $QUIET safe-personal
 
 sensible-browser "https://github.com/$( git config --get remote.origin.pushUrl | sed -e 's/.*:\([^/]*\).*/\1/' )/$( basename "$PWD" )/actions/"
 
@@ -34,4 +35,4 @@ git checkout $QUIET "$CURRENT_BRANCH"
 
 echo "Next steps:"
 echo "1. Check the current run succeeds (should have opened in a browser tab)"
-echo "2. git push --force-with-lease=main:HEAD@{1} origin unsafe-canonical/main^:main"
+echo "2. git push --force-with-lease=main:safe-personal/main origin unsafe-canonical/main:main"
