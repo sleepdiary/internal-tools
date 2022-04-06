@@ -47,7 +47,8 @@ case "$1" in
                 echo "Downloading package{,-lock}.json"
                 curl -f --silent \
                      -o "$DIR/package.json" "https://raw.githubusercontent.com/sleepdiary/$REPO/main/package.json" \
-                     -o "$DIR/package-lock.json" "https://raw.githubusercontent.com/sleepdiary/$REPO/main/package-lock.json"
+                     -o "$DIR/package-lock.json" "https://raw.githubusercontent.com/sleepdiary/$REPO/main/package-lock.json" \
+                     || true
             fi
             if [ -s "$DIR/package-lock.json" ]
             then
@@ -62,7 +63,7 @@ case "$1" in
 
         # Update Node itself:
         curl --silent https://nodejs.org/dist/index.json \
-            | sed -ne '/"version"/ { s/{"version":"v\([0-9]*\).*/\1/p ; q }' \
+            | sed -ne '/"version".*"lts":"/ { s/{"version":"v\([0-9]*\).*/\1/p ; q }' \
             > node-version.txt \
             || exit 2
         ;;
