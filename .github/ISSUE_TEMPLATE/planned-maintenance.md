@@ -22,7 +22,8 @@ This issue tracks a period of planned maintenance.  For example, an update that 
 3. [ ] look through [the list of previous planned maintenances](https://github.com/sleepdiary/internal-tools/issues?q=label%3Aplanned-maintenance) and find anything to learn from them
 4. [ ] assign one person to lead this task
 5. [ ] [fill out the maintenance actions](https://github.com/sleepdiary/planned-maintenance-info/edit/main/index.js)
-6. [ ] see at least one update message from [the maintenance timer](https://github.com/sleepdiary/internal-tools/actions/workflows/maintenance-timer.yml)
+6. [ ] enable [the maintenance timer](https://github.com/sleepdiary/internal-tools/actions/workflows/maintenance-timer.yml)
+7. [ ] see at least one update message from [the maintenance timer](https://github.com/sleepdiary/internal-tools/actions/workflows/maintenance-timer.yml)
 
 The maintenance window should be reasonably pessimistic.  How long would it take to slowly follow all the steps, wait until you're sure an action has hung and isn't just being slow, run some diagnostics (that also hang), then follow the fallback procedure?
 
@@ -44,6 +45,7 @@ Steps to revert this maintenance:
 2. [ ] confirm that all items before this one have been ticked off
 3. [ ] follow [the maintenance checklist](https://andrew-sayers.github.io/planned-maintenance/#https://sleepdiary.github.io/planned-maintenance-info/index.js)
 4. [ ] add a comment to any waiting branches that it's now safe to merge
+5. [ ] disable [the maintenance timer](https://github.com/sleepdiary/internal-tools/actions/workflows/maintenance-timer.yml)
 
 ## Review and process improvements
 

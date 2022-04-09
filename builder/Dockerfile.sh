@@ -21,7 +21,7 @@ FROM node:$NODE_VERSION
 COPY root/opt/sleepdiary/cache/ /opt/sleepdiary/cache/
 RUN true \\
 && mkdir -p /opt/sleepdiary/bin \\
-&& echo PATH="/opt/sleepdiary/bin:$PATH" > /etc/profile.d/fix_path.sh \\
+&& echo PATH="/opt/sleepdiary/bin:\$PATH" > /etc/profile.d/fix_path.sh \\
 EOF
 
 # JSDoc timestamps all documents.  To generate a repeatable build, we need a fake timestamp.
