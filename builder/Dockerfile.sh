@@ -13,7 +13,7 @@ NODE_VERSION="$(cat node-version.txt)"
 NPM_PROGRAMS="$(cat npm_programs.txt)"
 
 # Several repositories use inotify to automatically rebuild themselves:
-APT_PACKAGES="$APT_PACKAGES inotify-tools"
+APT_PACKAGES="$APT_PACKAGES inotify-tools poppler-utils imagemagick-6.q16"
 
 # Header:
 cat <<EOF
