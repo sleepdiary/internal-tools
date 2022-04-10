@@ -13,7 +13,7 @@ NODE_VERSION="$(cat node-version.txt)"
 NPM_PROGRAMS="$(cat npm_programs.txt)"
 
 # Several repositories use inotify to automatically rebuild themselves:
-APT_PACKAGES="$APT_PACKAGES inotify-tools"
+APT_PACKAGES="$APT_PACKAGES inotify-tools poppler-utils imagemagick-6.q16"
 
 # Header:
 cat <<EOF
@@ -21,7 +21,7 @@ FROM node:$NODE_VERSION
 COPY root/opt/sleepdiary/cache/ /opt/sleepdiary/cache/
 RUN true \\
 && mkdir -p /opt/sleepdiary/bin \\
-&& echo PATH="/opt/sleepdiary/bin:$PATH" > /etc/profile.d/fix_path.sh \\
+&& echo PATH="/opt/sleepdiary/bin:\$PATH" > /etc/profile.d/fix_path.sh \\
 EOF
 
 # JSDoc timestamps all documents.  To generate a repeatable build, we need a fake timestamp.
