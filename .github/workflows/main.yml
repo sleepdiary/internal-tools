@@ -49,7 +49,7 @@ jobs:
 
       - name: Extract metadata (tags, labels) for "builder"
         id: builder_meta
-        uses: docker/metadata-action@v3
+        uses: docker/metadata-action@v4
         with:
           images: |
             ghcr.io/${{ github.repository_owner }}/builder
@@ -57,7 +57,7 @@ jobs:
 
       - name: Extract metadata (tags, labels) for "dev-server"
         id: dev-server_meta
-        uses: docker/metadata-action@v3
+        uses: docker/metadata-action@v4
         with:
           images: |
             ${{ secrets.DOCKERHUB_USERNAME }}/dev-server
